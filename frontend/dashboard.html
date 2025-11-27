@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard - Student Grade Tracker</title>
+    <link rel="stylesheet" href="/login.css">
+  </head>
+  <body>
+    <main class="login-container">
+      <h1>Grades Dashboard</h1>
+      <div id="controls" style="text-align:right;margin-bottom:8px">
+        <button id="refresh">Refresh</button>
+        <button id="logout">Log out</button>
+      </div>
+      <div id="content">
+        <table id="gradesTable" style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr><th style="text-align:left">Name</th><th>Grades</th><th>Average</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+    <script src="/dashboard.js"></script>
+  </body>
+</html>
