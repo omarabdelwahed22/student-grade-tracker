@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login - Student Grade Tracker</title>
+    <link rel="stylesheet" href="/login.css">
+  </head>
+  <body>
+    <main class="login-container">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <label>
+          Username
+          <input type="text" name="username" id="username" required />
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" id="password" required />
+        </label>
+        <button type="submit">Sign In</button>
+      </form>
+      <p id="message" class="message"></p>
+    </main>
+    <script src="/login.js"></script>
+  </body>
+</html>
