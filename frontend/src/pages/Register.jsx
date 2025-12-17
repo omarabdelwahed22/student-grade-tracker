@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login as apiLogin } from '../services/auth'
+import { register as apiRegister } from '../services/auth'
 
-export default function Login({ onLogin }) {
+export default function Register({ onRegister }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('student')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [tab, setTab] = useState('student')
   const navigate = useNavigate()
 
   const submit = async (e) => {
@@ -15,15 +15,15 @@ export default function Login({ onLogin }) {
     setError(null)
     setLoading(true)
     try {
-      const data = await apiLogin(email, password)
-      // data is expected to include { token, user }
-      onLogin(data)
-      // redirect based on role returned by server
-      const role = data?.user?.role || tab
-      if (role === 'instructor') navigate('/instructor')
+      const data = await apiRegister(email, password, role)
+      // data: { token, user }
+      if (onRegister) onRegister(data)
+      // redirect based on role
+      const r = data?.user?.role || role
+      if (r === 'instructor') navigate('/instructor')
       else navigate('/student')
     } catch (err) {
-      setError(err.message || 'Login failed')
+      setError(err.message || 'Registration failed')
     } finally {
       setLoading(false)
     }
@@ -32,13 +32,7 @@ export default function Login({ onLogin }) {
   return (
     <div style={{padding:24,maxWidth:420,margin:'40px auto'}}>
       <div className="card">
-        <h2>Login</h2>
-
-        <div style={{display:'flex',gap:8,marginBottom:12}}>
-          <button type="button" className={tab==='student'? 'btn' : ''} onClick={() => setTab('student')}>Student</button>
-          <button type="button" className={tab==='instructor'? 'btn secondary' : ''} onClick={() => setTab('instructor')}>Instructor</button>
-        </div>
-
+        <h2>Register</h2>
         <form onSubmit={submit}>
           <div style={{marginBottom:8}}>
             <label>Email</label>
@@ -48,12 +42,16 @@ export default function Login({ onLogin }) {
             <label>Password</label>
             <input type="password" style={{width:'100%',padding:8}} value={password} onChange={e=>setPassword(e.target.value)} />
           </div>
+          <div style={{marginBottom:8}}>
+            <label>Role</label>
+            <select value={role} onChange={e=>setRole(e.target.value)} style={{width:'100%',padding:8}}>
+              <option value="student">Student</option>
+              <option value="instructor">Instructor</option>
+            </select>
+          </div>
           {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
           <div style={{display:'flex',gap:8}}>
-            <button className="btn" disabled={loading} type="submit">{loading ? 'Logging...' : `Login as ${tab}`}</button>
-          </div>
-          <div style={{marginTop:12}}>
-            <button type="button" className="btn secondary" onClick={() => navigate('/register')}>Register</button>
+            <button className="btn" disabled={loading} type="submit">{loading ? 'Registering...' : 'Register'}</button>
           </div>
         </form>
       </div>
