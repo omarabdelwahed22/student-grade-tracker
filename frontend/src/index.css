@@ -1,0 +1,35 @@
+.root{box-sizing:border-box}
+:root{
+  --sidebar-width: 220px;
+  --bg: #ffffff; /* white background */
+  --surface: #ffffff;
+  --muted: #f3f6fb;
+  --primary: #2563eb; /* blue */
+  --primary-600: #1d4ed8;
+  --secondary: #16a34a; /* green */
+  --text: #0f172a;
+  --muted-text: #475569;
+  --card-radius: 10px;
+  --shadow-1: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, 'Segoe UI', Arial; margin:0; background:var(--bg); color:var(--text)}
+.app-root{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-width);background:var(--muted);color:var(--text);padding:1rem}
+.sidebar h2{margin:0 0 1rem;font-size:1.25rem}
+.sidebar nav ul{list-style:none;padding:0;margin:0}
+.sidebar nav li{padding:0.45rem 0;color:var(--muted-text);cursor:pointer}
+.sidebar nav li:hover{color:var(--text)}
+.main-area{flex:1;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--bg),#fbfdff)}
+.header{padding:1rem;background:transparent;border-bottom:1px solid rgba(15,23,42,0.04)}
+main{padding:1rem;flex:1}
+.card{background:var(--surface);padding:1rem;border-radius:var(--card-radius);box-shadow:var(--shadow-1);border:1px solid rgba(15,23,42,0.03)}
+
+/* Utility classes */
+.muted{color:var(--muted-text)}
+.btn{display:inline-block;padding:0.5rem 0.75rem;border-radius:8px;background:var(--primary);color:#fff;border:none;cursor:pointer}
+.btn.secondary{background:var(--secondary)}
+
+.dashboard .card pre{background:transparent;padding:0;margin:0;color:var(--muted-text);white-space:pre-wrap}
+
