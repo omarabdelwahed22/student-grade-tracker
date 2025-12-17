@@ -8,6 +8,7 @@ const db = require('./config/db');
 const morgan = require('morgan');
 const cors = require('cors');
 const errorHandler = require('./middleware/errorHandler');
+const authRoute = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,6 +23,8 @@ app.use('/api/health', healthRoute);
 // Students routes
 const studentsRoute = require('./routes/students');
 app.use('/api/students', studentsRoute);
+// Auth routes
+app.use('/api/auth', authRoute);
 
 // Basic root route
 app.get('/', (req, res) => {
