@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# student-grade-tracker
-=======
 # Student Grade Tracker
 
 This repository contains a starter full-stack Student Grade Tracker.
@@ -149,4 +146,5 @@ git checkout -b feature/grade-tracking
 ```
 
 Create pull requests into `main` for review before merging.
->>>>>>> 5a876c66830b54ad63338be2dba67419b1a4fa27
+
+# student-grade-tracker
