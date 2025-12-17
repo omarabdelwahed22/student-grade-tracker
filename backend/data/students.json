@@ -1,5 +1,0 @@
-[
-  { "id": 1, "name": "Alice Johnson", "grades": [85, 90, 78] },
-  { "id": 2, "name": "Bob Smith", "grades": [72, 88, 91] },
-  { "id": 3, "name": "Carol Lee", "grades": [95, 92, 89] }
-]
