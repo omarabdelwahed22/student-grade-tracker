@@ -25,6 +25,9 @@ const studentsRoute = require('./routes/students');
 app.use('/api/students', studentsRoute);
 // Auth routes
 app.use('/api/auth', authRoute);
+// Courses routes
+const coursesRoute = require('./routes/courses');
+app.use('/api/courses', coursesRoute);
 
 // Basic root route
 app.get('/', (req, res) => {

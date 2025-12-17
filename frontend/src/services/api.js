@@ -11,6 +11,15 @@ export async function getHealth() {
   return res.json()
 }
 
+export async function get(path) {
+  const res = await fetch(`${API_BASE}${path}`, { headers: { ...authHeaders() } })
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({message:res.statusText}))
+    throw new Error(err.message || 'Network error')
+  }
+  return res.json()
+}
+
 export async function post(path, body) {
   const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) })
   if (!res.ok) {
@@ -20,7 +29,28 @@ export async function post(path, body) {
   return res.json()
 }
 
+export async function put(path, body) {
+  const res = await fetch(`${API_BASE}${path}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) })
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({message:res.statusText}))
+    throw new Error(err.message || 'Network error')
+  }
+  return res.json()
+}
+
+export async function del(path) {
+  const res = await fetch(`${API_BASE}${path}`, { method: 'DELETE', headers: { ...authHeaders() } })
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({message:res.statusText}))
+    throw new Error(err.message || 'Network error')
+  }
+  return res.json()
+}
+
 export default {
   getHealth,
-  post
+  get,
+  post,
+  put,
+  delete: del
 }
