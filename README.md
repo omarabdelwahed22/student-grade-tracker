@@ -1,5 +1,37 @@
 # Student Grade Tracker
 
+This repository contains a starter full-stack Student Grade Tracker.
+
+Frontend:
+- React (Vite-ready structure)
+- Folders: `components`, `pages`, `services`
+
+Backend:
+- Node.js + Express
+- Folders: `routes`, `controllers`, `models`, `config`
+- Health endpoint: `GET /api/health`
+
+How to run (backend only):
+
+1. Install dependencies for backend:
+
+```powershell
+cd backend; npm install
+```
+
+2. Start backend:
+
+```powershell
+npm start
+```
+
+Frontend setup (optional):
+
+```powershell
+cd frontend; npm install; npm run dev
+```
+# Student Grade Tracker
+
 A full-stack web application for tracking student grades and performance. Built with React, Node.js/Express, and designed for a software engineering course.
 
 ## Project Structure
