@@ -10,6 +10,7 @@ import InstructorHome from './pages/InstructorHome'
 import NotAuthorized from './pages/NotAuthorized'
 import Courses from './pages/Courses'
 import Grades from './pages/Grades'
+import Settings from './pages/Settings'
 import RoleRoute from './components/RoleRoute'
 
 export default function App() {
@@ -62,6 +63,7 @@ function AppRoutes({ auth, handleLogin, handleLogout }) {
             <Route path="/instructor" element={<RoleRoute allowedRoles={["instructor"]}><InstructorHome /></RoleRoute>} />
             <Route path="/courses" element={<RoleRoute allowedRoles={["student", "instructor"]}><Courses /></RoleRoute>} />
             <Route path="/grades" element={<RoleRoute allowedRoles={["student", "instructor"]}><Grades /></RoleRoute>} />
+            <Route path="/settings" element={<RoleRoute allowedRoles={["student", "instructor"]}><Settings /></RoleRoute>} />
             <Route path="/" element={auth.token ? <Dashboard /> : <Navigate to="/login" replace />} />
           </Routes>
         </main>

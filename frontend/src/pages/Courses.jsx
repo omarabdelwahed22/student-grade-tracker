@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { getMyCourses, createCourse, deleteCourse } from '../services/courses'
+import { getMyCourses, createCourse, deleteCourse, enrollStudent, unenrollStudent } from '../services/courses'
+import { getAllUsers } from '../services/users'
 
 export default function Courses() {
   const [courses, setCourses] = useState([])
+  const [allStudents, setAllStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [showEnrollModal, setShowEnrollModal] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -20,7 +24,19 @@ export default function Courses() {
 
   useEffect(() => {
     loadCourses()
+    if (isInstructor) {
+      loadStudents()
+    }
   }, [])
+
+  const loadStudents = async () => {
+    try {
+      const data = await getAllUsers()
+      setAllStudents(data.users.filter(u => u.role === 'student'))
+    } catch (err) {
+      console.error('Failed to load students:', err)
+    }
+  }
 
   const loadCourses = async () => {
     try {
@@ -62,6 +78,31 @@ export default function Courses() {
     } catch (err) {
       alert(err.message || 'Failed to delete course')
     }
+  }
+
+  const handleEnrollStudent = async (studentId) => {
+    try {
+      await enrollStudent(selectedCourse._id, studentId)
+      loadCourses()
+      alert('Student enrolled successfully')
+    } catch (err) {
+      alert(err.message || 'Failed to enroll student')
+    }
+  }
+
+  const handleUnenrollStudent = async (studentId) => {
+    try {
+      await unenrollStudent(selectedCourse._id, studentId)
+      loadCourses()
+      alert('Student unenrolled successfully')
+    } catch (err) {
+      alert(err.message || 'Failed to unenroll student')
+    }
+  }
+
+  const openEnrollModal = (course) => {
+    setSelectedCourse(course)
+    setShowEnrollModal(true)
   }
 
   if (loading) return <div style={{ padding: 24 }}>Loading courses...</div>
@@ -314,8 +355,28 @@ export default function Courses() {
                   {course.semester && <span>{course.semester} {course.year}</span>}
                 </div>
                 {isInstructor ? (
-                  <div style={{ marginTop: 8, fontSize: 13, color: '#718096' }}>
-                    Students: {course.students?.length || 0}
+                  <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, color: '#718096' }}>
+                      Students: {course.students?.length || 0}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openEnrollModal(course)
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: 13,
+                        background: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        fontWeight: 600
+                      }}
+                    >
+                      Manage Students
+                    </button>
                   </div>
                 ) : (
                   course.instructor?.email && (
@@ -327,6 +388,144 @@ export default function Courses() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Student Enrollment Modal */}
+      {showEnrollModal && selectedCourse && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 32,
+            maxWidth: 600,
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>
+                Manage Students - {selectedCourse.name}
+              </h2>
+              <button
+                onClick={() => setShowEnrollModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 24,
+                  cursor: 'pointer',
+                  color: '#718096'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Enrolled Students */}
+            <div style={{ marginBottom: 24 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+                Enrolled Students ({selectedCourse.students?.length || 0})
+              </h3>
+              {selectedCourse.students && selectedCourse.students.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {selectedCourse.students.map(student => (
+                    <div key={student._id} style={{
+                      padding: 12,
+                      background: '#f7fafc',
+                      borderRadius: 8,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 14 }}>{student.name}</div>
+                        <div style={{ fontSize: 13, color: '#718096' }}>{student.email}</div>
+                        {student.studentId && (
+                          <div style={{ fontSize: 12, color: '#a0aec0' }}>ID: {student.studentId}</div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleUnenrollStudent(student._id)}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: 13,
+                          background: '#fee',
+                          color: '#c33',
+                          border: '1px solid #fcc',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontWeight: 600
+                        }}
+                      >
+                        Unenroll
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: '#718096', fontSize: 14 }}>No students enrolled yet.</p>
+              )}
+            </div>
+
+            {/* Available Students to Enroll */}
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+                Available Students
+              </h3>
+              {allStudents.filter(s => !selectedCourse.students?.some(enrolled => enrolled._id === s._id)).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {allStudents
+                    .filter(s => !selectedCourse.students?.some(enrolled => enrolled._id === s._id))
+                    .map(student => (
+                      <div key={student._id} style={{
+                        padding: 12,
+                        background: '#f7fafc',
+                        borderRadius: 8,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 14 }}>{student.name}</div>
+                          <div style={{ fontSize: 13, color: '#718096' }}>{student.email}</div>
+                          {student.studentId && (
+                            <div style={{ fontSize: 12, color: '#a0aec0' }}>ID: {student.studentId}</div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleEnrollStudent(student._id)}
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: 13,
+                            background: '#667eea',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontWeight: 600
+                          }}
+                        >
+                          Enroll
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p style={{ color: '#718096', fontSize: 14 }}>All students are enrolled in this course.</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

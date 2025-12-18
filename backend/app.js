@@ -20,6 +20,9 @@ app.use(cors());
 
 // API routes
 app.use('/api/health', healthRoute);
+// Users routes
+const usersRoute = require('./routes/users');
+app.use('/api/users', usersRoute);
 // Students routes
 const studentsRoute = require('./routes/students');
 app.use('/api/students', studentsRoute);
