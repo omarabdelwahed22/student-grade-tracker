@@ -12,7 +12,7 @@ exports.getMyCourses = async (req, res, next) => {
     if (role === 'instructor') {
       // Get courses where user is the instructor
       courses = await Course.find({ instructor: userId })
-        .populate('students', 'email')
+        .populate('students', 'email studentId name')
         .sort('-createdAt');
     } else if (role === 'student') {
       // Get courses where user is in the students array
@@ -34,7 +34,7 @@ exports.getAllCourses = async (req, res, next) => {
   try {
     const courses = await Course.find()
       .populate('instructor', 'email')
-      .populate('students', 'email')
+      .populate('students', 'email studentId name')
       .sort('-createdAt');
     res.json({ courses });
   } catch (err) {
@@ -47,7 +47,7 @@ exports.getCourseById = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.id)
       .populate('instructor', 'email')
-      .populate('students', 'email');
+      .populate('students', 'email studentId name');
     
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
@@ -118,7 +118,7 @@ exports.updateCourse = async (req, res, next) => {
 
     await course.save();
     await course.populate('instructor', 'email');
-    await course.populate('students', 'email');
+    await course.populate('students', 'email studentId name');
     
     res.json({ course });
   } catch (err) {
@@ -170,7 +170,7 @@ exports.enrollStudent = async (req, res, next) => {
 
     course.students.push(studentId);
     await course.save();
-    await course.populate('students', 'email');
+    await course.populate('students', 'email studentId name');
     
     res.json({ course, message: 'Student enrolled successfully' });
   } catch (err) {
@@ -195,7 +195,7 @@ exports.unenrollStudent = async (req, res, next) => {
 
     course.students = course.students.filter(s => s.toString() !== studentId);
     await course.save();
-    await course.populate('students', 'email');
+    await course.populate('students', 'email studentId name');
     
     res.json({ course, message: 'Student unenrolled successfully' });
   } catch (err) {

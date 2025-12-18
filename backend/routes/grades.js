@@ -1,17 +1,66 @@
-const express = require("express");
+const express = require('express');
+const { body } = require('express-validator');
+const {
+  getGrades,
+  getGradeById,
+  createGrade,
+  updateGrade,
+  deleteGrade,
+  getCourseStats
+} = require('../controllers/gradesController');
+const auth = require('../middleware/auth');
+const validateRequest = require('../middleware/validateRequest');
+
 const router = express.Router();
-const fs = require("fs");
 
-const dataPath = __dirname + "/../data/students.json";
+// Validation rules
+const createGradeRules = [
+  body('studentId').notEmpty().withMessage('Student ID is required').isMongoId().withMessage('Invalid student ID'),
+  body('courseId').notEmpty().withMessage('Course ID is required').isMongoId().withMessage('Invalid course ID'),
+  body('assignment').notEmpty().withMessage('Assignment name is required').trim(),
+  body('score').isNumeric().withMessage('Score must be a number').custom((value) => {
+    if (value < 0) throw new Error('Score cannot be negative');
+    return true;
+  }),
+  body('maxScore').isNumeric().withMessage('Max score must be a number').custom((value) => {
+    if (value < 1) throw new Error('Max score must be at least 1');
+    return true;
+  }),
+  body('letterGrade').optional().isString().trim().toUpperCase(),
+  body('feedback').optional().isString().trim()
+];
 
-router.get("/", (req, res) => {
-  fs.readFile(dataPath, "utf8", (err, data) => {
-    if (err) {
-      res.status(500).send("Can't read data");
-      return;
-    }
-    res.send(data);
-  });
-});
+const updateGradeRules = [
+  body('assignment').optional().notEmpty().withMessage('Assignment name cannot be empty').trim(),
+  body('score').optional().isNumeric().withMessage('Score must be a number').custom((value) => {
+    if (value < 0) throw new Error('Score cannot be negative');
+    return true;
+  }),
+  body('maxScore').optional().isNumeric().withMessage('Max score must be a number').custom((value) => {
+    if (value < 1) throw new Error('Max score must be at least 1');
+    return true;
+  }),
+  body('letterGrade').optional().isString().trim().toUpperCase(),
+  body('feedback').optional().isString().trim()
+];
+
+// Check if user is instructor
+const isInstructor = (req, res, next) => {
+  if (req.user.role !== 'instructor') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Instructors only.'
+    });
+  }
+  next();
+};
+
+// Routes
+router.get('/', auth, getGrades);
+router.get('/course/:courseId/stats', auth, isInstructor, getCourseStats);
+router.get('/:id', auth, getGradeById);
+router.post('/', auth, isInstructor, createGradeRules, validateRequest, createGrade);
+router.put('/:id', auth, isInstructor, updateGradeRules, validateRequest, updateGrade);
+router.delete('/:id', auth, isInstructor, deleteGrade);
 
 module.exports = router;
