@@ -8,7 +8,8 @@ export default function Sidebar() {
     { path: '/', label: 'Dashboard' },
     { path: '/students', label: 'Students' },
     { path: '/courses', label: 'Courses' },
-    { path: '/grades', label: 'Grades' }
+    { path: '/grades', label: 'Grades' },
+    { path: '/settings', label: 'Settings' }
   ]
 
   return (

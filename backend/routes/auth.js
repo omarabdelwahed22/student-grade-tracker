@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const validateRequest = require('../middleware/validateRequest');
 const authController = require('../controllers/authController');
+const authMiddleware = require('../middleware/auth');
 
 const registerRules = [
   body('email').isEmail().withMessage('Valid email required'),
@@ -25,7 +26,19 @@ const loginRules = [
   body('password').exists()
 ];
 
+const profileUpdateRules = [
+  body('name').optional().isString().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('email').optional().isEmail().withMessage('Valid email required')
+];
+
+const passwordChangeRules = [
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+];
+
 router.post('/register', registerRules, validateRequest, authController.register);
 router.post('/login', loginRules, validateRequest, authController.login);
+router.put('/profile', authMiddleware, profileUpdateRules, validateRequest, authController.updateProfile);
+router.put('/password', authMiddleware, passwordChangeRules, validateRequest, authController.changePassword);
 
 module.exports = router;
