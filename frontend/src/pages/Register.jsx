@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { register as apiRegister } from '../services/auth'
 
 export default function Register({ onRegister }) {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [studentId, setStudentId] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('student')
   const [loading, setLoading] = useState(false)
@@ -15,7 +17,23 @@ export default function Register({ onRegister }) {
     setError(null)
     setLoading(true)
     try {
-      const data = await apiRegister(email, password, role)
+      if (!name.trim()) {
+        setError('Full name is required')
+        setLoading(false)
+        return
+      }
+      const trimmedStudentId = studentId.trim()
+      if (role === 'student' && !trimmedStudentId) {
+        setError('Student ID is required for student accounts')
+        setLoading(false)
+        return
+      }
+      if (role === 'student' && !/^\d{9}$/.test(trimmedStudentId)) {
+        setError('Student ID must be exactly 9 digits')
+        setLoading(false)
+        return
+      }
+      const data = await apiRegister(email, password, role, name, trimmedStudentId)
       // data: { token, user }
       if (onRegister) onRegister(data)
       // redirect based on role
@@ -57,14 +75,30 @@ export default function Register({ onRegister }) {
         </div>
 
         <form onSubmit={submit}>
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#2d3748'
-            }}>Email Address</label>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#2d3748' }}>Full Name</label>
+            <input
+              type="text"
+              required
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '15px',
+                border: '2px solid #e2e8f0',
+                borderRadius: '10px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                fontFamily: 'inherit'
+              }}
+              value={name}
+              onChange={e => setName(e.target.value)}
+              onFocus={e => e.target.style.borderColor = '#667eea'}
+              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              placeholder="Jane Doe"
+            />
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#2d3748' }}>Email Address</label>
             <input
               type="email"
               required
@@ -169,6 +203,41 @@ export default function Register({ onRegister }) {
               </button>
             </div>
           </div>
+          {role === 'student' && (
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#2d3748'
+              }}>Student ID (9 digits)</label>
+              <input
+                type="text"
+                required
+                pattern="\d{9}"
+                maxLength={9}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  fontSize: '15px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '10px',
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  fontFamily: 'inherit'
+                }}
+                value={studentId}
+                onChange={e => setStudentId(e.target.value)}
+                onFocus={e => e.target.style.borderColor = '#667eea'}
+                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                placeholder="e.g., 123456789"
+              />
+              <div style={{ marginTop: '6px', color: '#718096', fontSize: '13px' }}>
+                  Students must provide their 9-digit institutional ID for enrollment and grading.
+              </div>
+            </div>
+          )}
           {error && (
             <div style={{
               padding: '12px 16px',

@@ -28,6 +28,9 @@ app.use('/api/auth', authRoute);
 // Courses routes
 const coursesRoute = require('./routes/courses');
 app.use('/api/courses', coursesRoute);
+// Grades routes
+const gradesRoute = require('./routes/grades');
+app.use('/api/grades', gradesRoute);
 
 // Basic root route
 app.get('/', (req, res) => {

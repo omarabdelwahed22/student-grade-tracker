@@ -7,7 +7,17 @@ const authController = require('../controllers/authController');
 const registerRules = [
   body('email').isEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 6 }).withMessage('Password min 6 chars'),
-  body('role').optional().isIn(['student', 'instructor'])
+  body('role').optional().isIn(['student', 'instructor']),
+  body('name').isString().trim().notEmpty().withMessage('Name is required'),
+  body('studentId').custom((value, { req }) => {
+    const role = req.body.role || 'student';
+    if (role === 'student') {
+      if (!value || !/^\d{9}$/.test(String(value).trim())) {
+        throw new Error('studentId must be exactly 9 digits for students');
+      }
+    }
+    return true;
+  })
 ];
 
 const loginRules = [
