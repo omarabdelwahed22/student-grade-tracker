@@ -7,6 +7,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import StudentHome from './pages/StudentHome'
 import InstructorHome from './pages/InstructorHome'
+import Students from './pages/Students'
+import StudentDetails from './pages/StudentDetails'
 import NotAuthorized from './pages/NotAuthorized'
 import Courses from './pages/Courses'
 import Grades from './pages/Grades'
@@ -61,10 +63,19 @@ function AppRoutes({ auth, handleLogin, handleLogout }) {
             <Route path="/not-authorized" element={<NotAuthorized />} />
             <Route path="/student" element={<RoleRoute allowedRoles={["student"]}><StudentHome /></RoleRoute>} />
             <Route path="/instructor" element={<RoleRoute allowedRoles={["instructor"]}><InstructorHome /></RoleRoute>} />
+            <Route path="/students" element={<RoleRoute allowedRoles={["instructor"]}><Students /></RoleRoute>} />
+            <Route path="/students/:id" element={<RoleRoute allowedRoles={["instructor"]}><StudentDetails /></RoleRoute>} />
             <Route path="/courses" element={<RoleRoute allowedRoles={["student", "instructor"]}><Courses /></RoleRoute>} />
             <Route path="/grades" element={<RoleRoute allowedRoles={["student", "instructor"]}><Grades /></RoleRoute>} />
             <Route path="/settings" element={<RoleRoute allowedRoles={["student", "instructor"]}><Settings /></RoleRoute>} />
-            <Route path="/" element={auth.token ? <Dashboard /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/"
+              element={
+                auth.token
+                  ? (auth.user?.role === 'instructor' ? <InstructorHome /> : <Dashboard />)
+                  : <Navigate to="/login" replace />
+              }
+            />
           </Routes>
         </main>
       </div>

@@ -3,14 +3,19 @@ import { Link, useLocation } from 'react-router-dom'
 
 export default function Sidebar() {
   const location = useLocation()
-  
-  const navItems = [
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  const role = user?.role
+
+  // Only show Students nav for instructors
+  const baseItems = [
     { path: '/', label: 'Dashboard' },
-    { path: '/students', label: 'Students' },
     { path: '/courses', label: 'Courses' },
     { path: '/grades', label: 'Grades' },
     { path: '/settings', label: 'Settings' }
   ]
+  const navItems = role === 'instructor'
+    ? [{ path: '/students', label: 'Students' }, ...baseItems]
+    : baseItems
 
   return (
     <aside className="sidebar">

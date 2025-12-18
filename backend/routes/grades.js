@@ -18,7 +18,11 @@ const router = express.Router();
 const createGradeRules = [
   body('studentId').notEmpty().withMessage('Student ID is required').isMongoId().withMessage('Invalid student ID'),
   body('courseId').notEmpty().withMessage('Course ID is required').isMongoId().withMessage('Invalid course ID'),
-  body('assignment').notEmpty().withMessage('Assignment name is required').trim(),
+  body('category').notEmpty().withMessage('Category is required').trim(),
+  body('weight').optional().isNumeric().withMessage('Weight must be a number').custom((value) => {
+    if (value < 0 || value > 100) throw new Error('Weight must be between 0 and 100')
+    return true;
+  }),
   body('score').isNumeric().withMessage('Score must be a number').custom((value) => {
     if (value < 0) throw new Error('Score cannot be negative');
     return true;
@@ -32,7 +36,11 @@ const createGradeRules = [
 ];
 
 const updateGradeRules = [
-  body('assignment').optional().notEmpty().withMessage('Assignment name cannot be empty').trim(),
+  body('category').optional().notEmpty().withMessage('Category cannot be empty').trim(),
+  body('weight').optional().isNumeric().withMessage('Weight must be a number').custom((value) => {
+    if (value < 0 || value > 100) throw new Error('Weight must be between 0 and 100')
+    return true;
+  }),
   body('score').optional().isNumeric().withMessage('Score must be a number').custom((value) => {
     if (value < 0) throw new Error('Score cannot be negative');
     return true;

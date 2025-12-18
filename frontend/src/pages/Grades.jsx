@@ -13,7 +13,8 @@ export default function Grades() {
   const [formData, setFormData] = useState({
     courseId: '',
     studentId: '',
-    assignment: '',
+    category: 'Homework',
+    weight: 10,
     score: '',
     maxScore: 100,
     feedback: ''
@@ -61,7 +62,8 @@ export default function Grades() {
       setFormData({
         courseId: '',
         studentId: '',
-        assignment: '',
+        category: 'Homework',
+        weight: 10,
         score: '',
         maxScore: 100,
         feedback: ''
@@ -92,7 +94,7 @@ export default function Grades() {
         g.student?.studentId,
         g.course?.name,
         g.course?.code,
-        g.assignment
+        g.category
       ]
         .filter(Boolean)
         .join(' ')
@@ -362,20 +364,43 @@ export default function Grades() {
               </div>
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Assignment</label>
-              <input
-                required
-                value={formData.assignment}
-                onChange={e => setFormData({ ...formData, assignment: e.target.value })}
-                placeholder="e.g., Midterm Exam"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: 10,
-                  border: '1px solid #e2e8f0'
-                }}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Category</label>
+                <select
+                  required
+                  value={formData.category}
+                  onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 10,
+                    border: '1px solid #e2e8f0'
+                  }}
+                >
+                  <option value="Homework">Homework</option>
+                  <option value="Quiz">Quiz</option>
+                  <option value="Midterm">Midterm</option>
+                  <option value="Final">Final</option>
+                  <option value="Project">Project</option>
+                  <option value="Lab">Lab</option>
+                  <option value="Exam">Exam</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Weight (%)</label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={formData.weight}
+                  onChange={e => setFormData({ ...formData, weight: e.target.value })}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #e2e8f0' }}
+                />
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
@@ -464,14 +489,12 @@ export default function Grades() {
             <thead>
               <tr style={{ background: '#f7fafc', borderBottom: '1px solid #e2e8f0' }}>
                 {isInstructor && <th style={thStyle}>Student</th>}
-                <th style={thStyle}>Assignment</th>
+                <th style={thStyle}>Category</th>
                 {isInstructor && <th style={thStyle}>Course</th>}
-                {isInstructor && <th style={thStyle}>Category</th>}
                 <th style={{ ...thStyle, textAlign: 'center' }}>Score</th>
                 <th style={{ ...thStyle, textAlign: 'center' }}>Percentage</th>
                 <th style={{ ...thStyle, textAlign: 'center' }}>Letter Grade</th>
                 {isInstructor && <th style={thStyle}>Weight</th>}
-                {isInstructor && <th style={thStyle}>Due</th>}
                 {isInstructor && <th style={{ ...thStyle, textAlign: 'center' }}>Actions</th>}
               </tr>
             </thead>
@@ -481,9 +504,8 @@ export default function Grades() {
                 return (
                   <tr key={grade._id} style={{ borderBottom: idx < filteredGrades.length - 1 ? '1px solid #e2e8f0' : 'none', hover: { background: '#f7fafc' } }}>
                     {isInstructor && <td style={tdStyle}>{grade.student?.name || 'Student'}</td>}
-                    <td style={tdStyle}>{grade.assignment}</td>
+                    <td style={tdStyle}>{grade.category || 'N/A'}</td>
                     {isInstructor && <td style={tdStyle}>{grade.course?.code}</td>}
-                    {isInstructor && <td style={tdStyle}>Homework</td>}
                     <td style={{ ...tdStyle, textAlign: 'center', fontWeight: 600 }}>
                       {grade.score}/{grade.maxScore}
                     </td>
@@ -503,8 +525,7 @@ export default function Grades() {
                         {grade.letterGrade}
                       </span>
                     </td>
-                    {isInstructor && <td style={tdStyle}>15%</td>}
-                    {isInstructor && <td style={tdStyle}>-</td>}
+                    {isInstructor && <td style={tdStyle}>{grade.weight ? grade.weight + '%' : '-'}</td>}
                     {isInstructor && (
                       <td style={{ ...tdStyle, textAlign: 'center' }}>
                         <button

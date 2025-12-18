@@ -17,7 +17,7 @@ exports.getMyCourses = async (req, res, next) => {
     } else if (role === 'student') {
       // Get courses where user is in the students array
       courses = await Course.find({ students: userId })
-        .populate('instructor', 'email')
+        .populate('instructor', 'name email')
         .sort('-createdAt');
     } else {
       return res.status(403).json({ message: 'Invalid role' });
