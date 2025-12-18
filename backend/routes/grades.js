@@ -6,7 +6,8 @@ const {
   createGrade,
   updateGrade,
   deleteGrade,
-  getCourseStats
+  getCourseStats,
+  getGpa
 } = require('../controllers/gradesController');
 const auth = require('../middleware/auth');
 const validateRequest = require('../middleware/validateRequest');
@@ -57,6 +58,7 @@ const isInstructor = (req, res, next) => {
 
 // Routes
 router.get('/', auth, getGrades);
+router.get('/gpa', auth, getGpa);
 router.get('/course/:courseId/stats', auth, isInstructor, getCourseStats);
 router.get('/:id', auth, getGradeById);
 router.post('/', auth, isInstructor, createGradeRules, validateRequest, createGrade);
