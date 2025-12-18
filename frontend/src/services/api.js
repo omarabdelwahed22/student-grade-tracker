@@ -14,7 +14,13 @@ export async function getHealth() {
 export async function get(path) {
   const res = await fetch(`${API_BASE}${path}`, { headers: { ...authHeaders() } })
   if (!res.ok) {
-    const err = await res.json().catch(()=>({message:res.statusText}))
+    const ct = res.headers.get('content-type') || ''
+    let err
+    if (ct.includes('application/json')) {
+      err = await res.json().catch(()=>({ message: res.statusText }))
+    } else {
+      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText }
+    }
     throw new Error(err.message || 'Network error')
   }
   return res.json()
@@ -23,7 +29,13 @@ export async function get(path) {
 export async function post(path, body) {
   const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) })
   if (!res.ok) {
-    const err = await res.json().catch(()=>({message:res.statusText}))
+    const ct = res.headers.get('content-type') || ''
+    let err
+    if (ct.includes('application/json')) {
+      err = await res.json().catch(()=>({ message: res.statusText }))
+    } else {
+      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText }
+    }
     throw new Error(err.message || 'Network error')
   }
   return res.json()
@@ -32,7 +44,13 @@ export async function post(path, body) {
 export async function put(path, body) {
   const res = await fetch(`${API_BASE}${path}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) })
   if (!res.ok) {
-    const err = await res.json().catch(()=>({message:res.statusText}))
+    const ct = res.headers.get('content-type') || ''
+    let err
+    if (ct.includes('application/json')) {
+      err = await res.json().catch(()=>({ message: res.statusText }))
+    } else {
+      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText }
+    }
     throw new Error(err.message || 'Network error')
   }
   return res.json()
@@ -41,7 +59,13 @@ export async function put(path, body) {
 export async function del(path) {
   const res = await fetch(`${API_BASE}${path}`, { method: 'DELETE', headers: { ...authHeaders() } })
   if (!res.ok) {
-    const err = await res.json().catch(()=>({message:res.statusText}))
+    const ct = res.headers.get('content-type') || ''
+    let err
+    if (ct.includes('application/json')) {
+      err = await res.json().catch(()=>({ message: res.statusText }))
+    } else {
+      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText }
+    }
     throw new Error(err.message || 'Network error')
   }
   return res.json()

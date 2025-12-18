@@ -42,7 +42,17 @@ async function disconnect() {
   }
 }
 
+async function disconnect() {
+  try {
+    await mongoose.disconnect();
+    console.log('MongoDB disconnected');
+  } catch (err) {
+    console.error('Error during MongoDB disconnect:', err.message);
+  }
+}
+
 module.exports = {
   connect,
-  getStatus
+  getStatus,
+  disconnect
 };

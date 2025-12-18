@@ -1,5 +1,20 @@
+const { Types } = require('mongoose');
 const Grade = require('../models/gradeModel');
 const Course = require('../models/courseModel');
+
+// GPA helper: map percentage to 4.0 scale
+function percentageToGpa(pct) {
+  if (pct >= 90) return 4.0;
+  if (pct >= 85) return 3.7;
+  if (pct >= 80) return 3.3;
+  if (pct >= 75) return 3.0;
+  if (pct >= 70) return 2.7;
+  if (pct >= 65) return 2.3;
+  if (pct >= 60) return 2.0;
+  if (pct >= 55) return 1.7;
+  if (pct >= 50) return 1.0;
+  return 0.0;
+}
 
 /**
  * @desc    Get grades (role-based filtering)
@@ -277,6 +292,93 @@ exports.getCourseStats = async (req, res, next) => {
         highestScore: highest.toFixed(2),
         lowestScore: lowest.toFixed(2)
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get GPA for the current student (or specified studentId for instructors)
+ * @route   GET /api/grades/gpa
+ * @access  Private
+ */
+exports.getGpa = async (req, res, next) => {
+  try {
+    const isInstructor = req.user.role === 'instructor';
+    const studentId = isInstructor ? (req.query.studentId || null) : req.user.id;
+
+    if (!studentId) {
+      return res.status(400).json({ success: false, message: 'studentId is required for instructors' });
+    }
+
+    if (!Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid studentId' });
+    }
+
+    const studentObjectId = Types.ObjectId(studentId);
+
+    const courseAggregates = await Grade.aggregate([
+      { $match: { student: studentObjectId } },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'course',
+          foreignField: '_id',
+          as: 'course'
+        }
+      },
+      { $unwind: '$course' },
+      {
+        $group: {
+          _id: '$course._id',
+          courseName: { $first: '$course.name' },
+          courseCode: { $first: '$course.code' },
+          credits: { $first: '$course.credits' },
+          totalScore: { $sum: '$score' },
+          totalMax: { $sum: '$maxScore' }
+        }
+      },
+      {
+        $addFields: {
+          percentage: {
+            $cond: [
+              { $gt: ['$totalMax', 0] },
+              { $multiply: [{ $divide: ['$totalScore', '$totalMax'] }, 100] },
+              0
+            ]
+          }
+        }
+      }
+    ]);
+
+    if (!courseAggregates.length) {
+      return res.json({ success: true, gpa: 0, totalCredits: 0, breakdown: [] });
+    }
+
+    const breakdown = courseAggregates.map(c => {
+      const credits = Number(c.credits) || 3;
+      const percentage = Number(c.percentage?.toFixed(2));
+      const points = percentageToGpa(percentage);
+      return {
+        courseId: c._id,
+        courseCode: c.courseCode,
+        courseName: c.courseName,
+        credits,
+        percentage,
+        points
+      };
+    });
+
+    const totalCredits = breakdown.reduce((sum, c) => sum + c.credits, 0);
+    const totalQualityPoints = breakdown.reduce((sum, c) => sum + c.points * c.credits, 0);
+    const gpa = totalCredits > 0 ? Number((totalQualityPoints / totalCredits).toFixed(2)) : 0;
+
+    res.json({
+      success: true,
+      gpa,
+      totalCredits,
+      breakdown
     });
   } catch (error) {
     next(error);
