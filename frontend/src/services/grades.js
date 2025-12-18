@@ -18,7 +18,7 @@ export const updateGrade = (id, data) => {
 }
 
 export const deleteGrade = (id) => {
-  return api.del(`/grades/${id}`)
+  return api.delete(`/grades/${id}`)
 }
 
 export const getCourseStats = (courseId) => {

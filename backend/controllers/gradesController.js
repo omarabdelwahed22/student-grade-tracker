@@ -108,7 +108,7 @@ exports.getGradeById = async (req, res, next) => {
  */
 exports.createGrade = async (req, res, next) => {
   try {
-    const { studentId, courseId, assignment, score, maxScore, letterGrade, feedback } = req.body;
+    const { studentId, courseId, category, weight, score, maxScore, letterGrade, feedback } = req.body;
 
     // Verify the course belongs to the instructor
     const course = await Course.findById(courseId);
@@ -138,7 +138,8 @@ exports.createGrade = async (req, res, next) => {
     const grade = await Grade.create({
       student: studentId,
       course: courseId,
-      assignment,
+      category,
+      weight,
       score,
       maxScore,
       letterGrade,
@@ -183,9 +184,10 @@ exports.updateGrade = async (req, res, next) => {
       });
     }
 
-    const { assignment, score, maxScore, letterGrade, feedback } = req.body;
+    const { category, weight, score, maxScore, letterGrade, feedback } = req.body;
 
-    if (assignment !== undefined) grade.assignment = assignment;
+    if (category !== undefined) grade.category = category;
+    if (weight !== undefined) grade.weight = weight;
     if (score !== undefined) grade.score = score;
     if (maxScore !== undefined) grade.maxScore = maxScore;
     if (letterGrade !== undefined) grade.letterGrade = letterGrade;
@@ -316,7 +318,7 @@ exports.getGpa = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid studentId' });
     }
 
-    const studentObjectId = Types.ObjectId(studentId);
+    const studentObjectId = new Types.ObjectId(studentId);
 
     const courseAggregates = await Grade.aggregate([
       { $match: { student: studentObjectId } },

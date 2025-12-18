@@ -26,6 +26,18 @@ const gradeSchema = new mongoose.Schema({
     required: true,
     min: 1
   },
+  category: {
+    type: String,
+    trim: true,
+    enum: ['Homework', 'Quiz', 'Midterm', 'Final', 'Project', 'Lab', 'Exam', 'Other'],
+    default: 'Homework'
+  },
+  weight: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 10
+  },
   letterGrade: {
     type: String,
     trim: true,
@@ -49,7 +61,7 @@ gradeSchema.virtual('percentage').get(function() {
 });
 
 // Auto-calculate letter grade if not provided
-gradeSchema.pre('save', function(next) {
+gradeSchema.pre('save', function() {
   if (!this.letterGrade) {
     const percentage = (this.score / this.maxScore) * 100;
     if (percentage >= 90) this.letterGrade = 'A';
@@ -58,7 +70,6 @@ gradeSchema.pre('save', function(next) {
     else if (percentage >= 60) this.letterGrade = 'D';
     else this.letterGrade = 'F';
   }
-  next();
 });
 
 const Grade = mongoose.model('Grade', gradeSchema);
