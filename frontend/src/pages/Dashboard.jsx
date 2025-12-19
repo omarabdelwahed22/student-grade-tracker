@@ -32,6 +32,24 @@ export default function Dashboard() {
     }
   }
 
+  const letterFromPercentage = (pct) => {
+    if (pct >= 90) return 'A'
+    if (pct >= 80) return 'B'
+    if (pct >= 70) return 'C'
+    if (pct >= 60) return 'D'
+    return 'F'
+  }
+
+  const letterColors = (letter) => {
+    switch (letter) {
+      case 'A': return { fg: '#065f46', bg: '#d1fae5', border: '#10b981' }
+      case 'B': return { fg: '#1e3a8a', bg: '#dbeafe', border: '#60a5fa' }
+      case 'C': return { fg: '#92400e', bg: '#fef3c7', border: '#f59e0b' }
+      case 'D': return { fg: '#7f1d1d', bg: '#fee2e2', border: '#f87171' }
+      default: return { fg: '#111827', bg: '#e5e7eb', border: '#d1d5db' }
+    }
+  }
+
   const toggleCourseStatus = async (course) => {
     const newStatus = course.status === 'completed' ? 'in-progress' : 'completed'
     const confirmMsg = newStatus === 'completed' 
@@ -141,6 +159,27 @@ export default function Dashboard() {
                   <div style={{ fontSize: 20, fontWeight: 700, color: '#667eea' }}>{courseGpa?.points.toFixed(2) || '0.00'}</div>
                 </div>
               </div>
+              {status === 'completed' && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                  {(() => {
+                    const letter = letterFromPercentage(percentage)
+                    const colors = letterColors(letter)
+                    return (
+                      <span style={{
+                        padding: '6px 10px',
+                        borderRadius: 999,
+                        border: `1px solid ${colors.border}`,
+                        background: colors.bg,
+                        color: colors.fg,
+                        fontSize: 13,
+                        fontWeight: 800
+                      }}>
+                        {letter}
+                      </span>
+                    )
+                  })()}
+                </div>
+              )}
               {isInstructor && (
                 <button
                   onClick={() => toggleCourseStatus(c)}
