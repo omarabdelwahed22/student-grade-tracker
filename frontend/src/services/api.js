@@ -32,11 +32,15 @@ export async function post(path, body) {
     const ct = res.headers.get('content-type') || ''
     let err
     if (ct.includes('application/json')) {
-      err = await res.json().catch(()=>({ message: res.statusText }))
+      try {
+        err = await res.json()
+      } catch {
+        err = { message: res.statusText }
+      }
     } else {
       err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText }
     }
-    throw new Error(err.message || 'Network error')
+    throw new Error(err.message || err.error || 'Network error')
   }
   return res.json()
 }

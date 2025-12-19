@@ -13,9 +13,24 @@ export default function Sidebar() {
     { path: '/grades', label: 'Grades' },
     { path: '/settings', label: 'Settings' }
   ]
-  const navItems = role === 'instructor'
-    ? [{ path: '/students', label: 'Students' }, ...baseItems]
-    : baseItems
+  
+  const studentItems = [
+    { path: '/', label: 'Dashboard' },
+    { path: '/courses', label: 'Courses' },
+    { path: '/grades', label: 'Grades' },
+    { path: '/settings', label: 'Settings' }
+  ]
+  
+  const instructorItems = [
+    { path: '/students', label: 'Students' },
+    { path: '/', label: 'Dashboard' },
+    { path: '/courses', label: 'Courses' },
+    { path: '/grades', label: 'Grades' },
+    { path: '/statistics', label: 'Statistics' },
+    { path: '/settings', label: 'Settings' }
+  ]
+  
+  const navItems = role === 'instructor' ? instructorItems : studentItems
 
   return (
     <aside className="sidebar">

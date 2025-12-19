@@ -25,6 +25,10 @@ export const getCourseStats = (courseId) => {
   return api.get(`/grades/course/${courseId}/stats`)
 }
 
+export const getCourseAnalytics = (courseId) => {
+  return api.get(`/grades/course/${courseId}/analytics`)
+}
+
 export const getGpa = (studentId) => {
   const qs = studentId ? `?studentId=${studentId}` : ''
   return api.get(`/grades/gpa${qs}`)
@@ -37,5 +41,6 @@ export default {
   updateGrade,
   deleteGrade,
   getCourseStats,
+  getCourseAnalytics,
   getGpa
 }

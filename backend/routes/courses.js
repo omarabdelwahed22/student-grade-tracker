@@ -15,7 +15,9 @@ const createCourseRules = [
 const updateCourseRules = [
   body('name').optional().trim().notEmpty().withMessage('Course name cannot be empty'),
   body('code').optional().trim().notEmpty().withMessage('Course code cannot be empty'),
-  body('credits').optional().isInt({ min: 1, max: 6 }).withMessage('Credits must be between 1 and 6')
+  body('credits').optional().isInt({ min: 1, max: 6 }).withMessage('Credits must be between 1 and 6'),
+  body('status').optional().isIn(['in-progress', 'completed', 'archived']).withMessage('Invalid status'),
+  body('completedAt').optional().isISO8601().withMessage('completedAt must be a valid date')
 ];
 
 const enrollRules = [

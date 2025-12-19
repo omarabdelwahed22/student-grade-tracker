@@ -27,9 +27,11 @@ export default function Students() {
         // Build enrolled-only unique student list from instructor's courses
         const unique = new Map()
         courseList.forEach(c => {
-          (c.students || []).forEach(s => {
-            const id = String(s._id || s)
-            if (!unique.has(id)) unique.set(id, s)
+          (c.students || []).forEach(enrollment => {
+            // Handle new nested structure {student: {...}, enrolledBy: {...}}
+            const studentData = enrollment.student || enrollment
+            const id = String(studentData._id || studentData)
+            if (!unique.has(id)) unique.set(id, studentData)
           })
         })
         setStudents(Array.from(unique.values()))
@@ -53,8 +55,10 @@ export default function Students() {
     // Build map studentId -> Set(courseId)
     const idx = new Map()
     courses.forEach(c => {
-      (c.students || []).forEach(s => {
-        const key = String(s._id || s)
+      (c.students || []).forEach(enrollment => {
+        // Handle nested structure {student: {...}, enrolledBy: {...}}
+        const studentData = enrollment.student || enrollment
+        const key = String(studentData._id || studentData)
         if (!idx.has(key)) idx.set(key, new Set())
         idx.get(key).add(String(c._id))
       })
@@ -123,19 +127,19 @@ export default function Students() {
       {/* Search + filter */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
-          <span style={{ color: '#718096' }}>🔍</span>
+          <span style={{ color: 'var(--text-muted)' }}>🔍</span>
           <input
             placeholder="Search by name, email, or student ID..."
             value={query}
             onChange={e => setQuery(e.target.value)}
-            style={{ flex: 1, padding: '12px 16px', border: '2px solid #e2e8f0', borderRadius: 10 }}
+            style={{ flex: 1, padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, background: 'var(--surface)', color: 'var(--text)' }}
           />
         </div>
         <div>
           <select
             value={courseFilter}
             onChange={e => setCourseFilter(e.target.value)}
-            style={{ padding: '12px 16px', border: '2px solid #e2e8f0', borderRadius: 10 }}
+            style={{ padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, background: 'var(--surface)', color: 'var(--text)' }}
           >
             <option value="all">All Courses</option>
             {courses.map(c => (
@@ -146,8 +150,8 @@ export default function Students() {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 2fr 1fr 1fr', padding: '12px 16px', borderBottom: '1px solid #e2e8f0', fontWeight: 600, color: '#4a5568' }}>
+      <div style={{ background: 'var(--surface)', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.06)', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 2fr 1fr 1fr', padding: '12px 16px', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text)' }}>
           <div>Student</div>
           <div>Student ID</div>
           <div>Email</div>
@@ -160,30 +164,30 @@ export default function Students() {
           const enrolledCourses = Array.from(enrolledSet).map(id => courseMap.get(id)).filter(Boolean)
           const gradeCount = gradeCountByStudent.get(String(s._id)) || 0
           return (
-            <div key={s._id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 2fr 1fr 1fr', padding: '12px 16px', borderBottom: '1px solid #edf2f7', alignItems: 'center' }}>
+            <div key={s._id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 2fr 1fr 1fr', padding: '12px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e6fffa', color: '#159' , display: 'grid', placeItems: 'center', fontWeight: 700 }}>
                   {String(s.name || '?').split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase()}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600 }}>{s.name}</div>
-                  <div style={{ fontSize: 12, color: '#718096' }}>{enrolledSet.size} course(s)</div>
+                  <div style={{ fontWeight: 600, color: 'var(--text)' }}>{s.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{enrolledSet.size} course(s)</div>
                 </div>
               </div>
-              <div>{s.studentId || '-'}</div>
-              <div>{s.email}</div>
+              <div style={{ color: 'var(--text)' }}>{s.studentId || '-'}</div>
+              <div style={{ color: 'var(--text)' }}>{s.email}</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {enrolledCourses.length ? enrolledCourses.map(c => (
                   <span key={c._id} style={{ padding: '4px 8px', background: '#f0f5ff', color: '#3749a9', borderRadius: 999, fontSize: 12, fontWeight: 600 }}>
                     {c.code || c.name}
                   </span>
-                )) : <span style={{ color: '#a0aec0' }}>—</span>}
+                )) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
               </div>
               <div>{gradeCount}</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
                   onClick={() => navigate(`/students/${s._id}`)}
-                  style={{ padding: '6px 10px', fontSize: 12, background: '#edf2f7', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer' }}
+                  style={{ padding: '6px 10px', fontSize: 12, background: 'var(--gray-100)', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', color: 'var(--text)' }}
                 >
                   View Details
                 </button>
@@ -198,7 +202,7 @@ export default function Students() {
           )
         })}
         {filtered.length === 0 && (
-          <div style={{ padding: 24, color: '#718096' }}>No students match your filters.</div>
+          <div style={{ padding: 24, color: 'var(--text-muted)' }}>No students match your filters.</div>
         )}
       </div>
     </div>
@@ -207,13 +211,13 @@ export default function Students() {
 
 function StatCard({ title, value, icon }) {
   return (
-    <div style={{ background: 'white', borderRadius: 12, padding: 16, boxShadow: '0 4px 12px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ background: 'var(--surface)', borderRadius: 12, padding: 16, boxShadow: '0 4px 12px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--border)' }}>
       <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eef2ff', display: 'grid', placeItems: 'center', fontSize: 18 }}>
         <span>{icon}</span>
       </div>
       <div>
-        <div style={{ fontSize: 12, color: '#718096', fontWeight: 600 }}>{title}</div>
-        <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600 }}>{title}</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>{value}</div>
       </div>
     </div>
   )

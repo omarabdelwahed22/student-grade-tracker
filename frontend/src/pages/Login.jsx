@@ -35,34 +35,57 @@ export default function Login({ onLogin }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'var(--bg)',
       padding: '20px'
     }}>
       <div style={{
-        background: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(circle at 20% 20%, rgba(102,126,234,0.15), transparent 28%), radial-gradient(circle at 80% 10%, rgba(118,75,162,0.12), transparent 30%), radial-gradient(circle at 50% 80%, rgba(102,126,234,0.1), transparent 26%)',
+        pointerEvents: 'none'
+      }} />
+      <div style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '18px',
+        boxShadow: 'var(--shadow-lg)',
         width: '100%',
         maxWidth: '440px',
-        padding: '48px 40px'
+        padding: '44px 38px',
+        position: 'relative'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            fontWeight: 800,
+            marginBottom: 12
+          }}>
+            SGT
+          </div>
           <h1 style={{
-            fontSize: '32px',
+            fontSize: '30px',
             fontWeight: '700',
-            color: '#1a202c',
-            margin: '0 0 8px 0'
+            color: 'var(--text)',
+            margin: '0 0 6px 0'
           }}>Welcome Back</h1>
-          <p style={{ color: '#718096', margin: 0, fontSize: '15px' }}>Sign in to continue to Student Grade Tracker</p>
+          <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '15px' }}>Login to Your Account</p>
         </div>
 
         <div style={{
           display: 'flex',
-          gap: '12px',
-          marginBottom: '32px',
+          gap: '10px',
+          marginBottom: '26px',
           padding: '6px',
-          background: '#f7fafc',
-          borderRadius: '12px'
+          background: 'var(--bg)',
+          borderRadius: '12px',
+          border: '1px solid var(--border)'
         }}>
           <button
             type="button"
@@ -75,9 +98,9 @@ export default function Login({ onLogin }) {
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.2s',
-              background: tab === 'student' ? 'white' : 'transparent',
-              color: tab === 'student' ? '#667eea' : '#718096',
-              boxShadow: tab === 'student' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
+              background: tab === 'student' ? 'var(--surface)' : 'transparent',
+              color: tab === 'student' ? '#667eea' : 'var(--text-muted)',
+              boxShadow: tab === 'student' ? '0 4px 14px rgba(0,0,0,0.08)' : 'none'
             }}
             onClick={() => setTab('student')}
           >
@@ -94,9 +117,9 @@ export default function Login({ onLogin }) {
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.2s',
-              background: tab === 'instructor' ? 'white' : 'transparent',
-              color: tab === 'instructor' ? '#667eea' : '#718096',
-              boxShadow: tab === 'instructor' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
+              background: tab === 'instructor' ? 'var(--surface)' : 'transparent',
+              color: tab === 'instructor' ? '#667eea' : 'var(--text-muted)',
+              boxShadow: tab === 'instructor' ? '0 4px 14px rgba(0,0,0,0.08)' : 'none'
             }}
             onClick={() => setTab('instructor')}
           >
@@ -111,7 +134,7 @@ export default function Login({ onLogin }) {
               marginBottom: '8px',
               fontSize: '14px',
               fontWeight: '600',
-              color: '#2d3748'
+              color: 'var(--text)'
             }}>Email Address</label>
             <input
               type="email"
@@ -120,17 +143,25 @@ export default function Login({ onLogin }) {
                 width: '100%',
                 padding: '14px 16px',
                 fontSize: '15px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: '10px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-                fontFamily: 'inherit'
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+                fontFamily: 'inherit',
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={email}
               onChange={e => setEmail(e.target.value)}
-              onFocus={e => e.target.style.borderColor = '#667eea'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-              placeholder="you@example.com"
+              onFocus={e => {
+                e.target.style.borderColor = '#667eea'
+                e.target.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.25)'
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = 'var(--border)'
+                e.target.style.boxShadow = 'none'
+              }}
+              placeholder="Enter your email"
             />
           </div>
           <div style={{ marginBottom: '24px' }}>
@@ -139,7 +170,7 @@ export default function Login({ onLogin }) {
               marginBottom: '8px',
               fontSize: '14px',
               fontWeight: '600',
-              color: '#2d3748'
+              color: 'var(--text)'
             }}>Password</label>
             <input
               type="password"
@@ -148,16 +179,24 @@ export default function Login({ onLogin }) {
                 width: '100%',
                 padding: '14px 16px',
                 fontSize: '15px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: '10px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-                fontFamily: 'inherit'
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+                fontFamily: 'inherit',
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={password}
               onChange={e => setPassword(e.target.value)}
-              onFocus={e => e.target.style.borderColor = '#667eea'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              onFocus={e => {
+                e.target.style.borderColor = '#667eea'
+                e.target.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.25)'
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = 'var(--border)'
+                e.target.style.boxShadow = 'none'
+              }}
               placeholder="Enter your password"
             />
           </div>
@@ -189,43 +228,41 @@ export default function Login({ onLogin }) {
               boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
             }}
           >
-            {loading ? 'Signing in...' : `Sign in as ${tab.charAt(0).toUpperCase() + tab.slice(1)}`}
+            {loading ? 'Signing in...' : 'Login'}
           </button>
+
+          <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#667eea',
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Forgot Password?
+            </button>
+          </div>
         </form>
 
-        <div style={{
-          marginTop: '32px',
-          textAlign: 'center',
-          paddingTop: '24px',
-          borderTop: '1px solid #e2e8f0'
-        }}>
-          <p style={{ color: '#718096', fontSize: '14px', margin: '0 0 16px 0' }}>
-            Don't have an account?
-          </p>
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Don't have an account? </span>
           <button
             type="button"
-            style={{
-              padding: '12px 32px',
-              fontSize: '15px',
-              fontWeight: '600',
-              color: '#667eea',
-              background: 'white',
-              border: '2px solid #667eea',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
             onClick={() => navigate('/register')}
-            onMouseEnter={e => {
-              e.target.style.background = '#667eea'
-              e.target.style.color = 'white'
-            }}
-            onMouseLeave={e => {
-              e.target.style.background = 'white'
-              e.target.style.color = '#667eea'
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#667eea',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '14px'
             }}
           >
-            Create Account
+            Register Now
           </button>
         </div>
       </div>
