@@ -74,9 +74,9 @@ async function cleanupStudents() {
       console.log('No invalid users found');
     }
 
-    console.log(`\n✅ Cleanup completed!`);
+    console.log('\n✅ Cleanup completed!');
     console.log(`Total removed from courses: ${removedCount} student(s)`);
-    
+
     await mongoose.connection.close();
     process.exit(0);
   } catch (error) {

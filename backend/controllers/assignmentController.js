@@ -39,7 +39,7 @@ const createAssignment = async (req, res) => {
       relatedModel: 'Assignment',
       priority: 'normal'
     }));
-    
+
     if (notifications.length > 0) {
       await Notification.insertMany(notifications);
     }

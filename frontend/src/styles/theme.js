@@ -6,7 +6,7 @@ export const colors = {
   primaryDark: '#5a67d8',
   primaryLight: '#7c3aed',
   primaryGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  
+
   // Neutral colors
   gray50: '#f9fafb',
   gray100: '#f7fafc',
@@ -18,7 +18,7 @@ export const colors = {
   gray700: '#4a5568',
   gray800: '#2d3748',
   gray900: '#1a202c',
-  
+
   // Semantic colors
   success: '#10b981',
   successLight: '#d1fae5',
@@ -28,18 +28,18 @@ export const colors = {
   errorLight: '#fee2e2',
   info: '#3b82f6',
   infoLight: '#dbeafe',
-  
+
   // Background
   background: '#f5f7fa',
   white: '#ffffff',
-  
+
   // Status colors
   statusA: '#10b981',
   statusB: '#3b82f6',
   statusC: '#f59e0b',
   statusD: '#ef4444',
   statusF: '#dc2626'
-}
+};
 
 export const spacing = {
   xs: '4px',
@@ -49,7 +49,7 @@ export const spacing = {
   xl: '24px',
   xxl: '32px',
   xxxl: '48px'
-}
+};
 
 export const borderRadius = {
   sm: '6px',
@@ -58,7 +58,7 @@ export const borderRadius = {
   xl: '12px',
   xxl: '14px',
   full: '9999px'
-}
+};
 
 export const shadows = {
   sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -69,7 +69,7 @@ export const shadows = {
   inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
   primaryGlow: '0 4px 12px rgba(102, 126, 234, 0.4)',
   none: 'none'
-}
+};
 
 export const typography = {
   fontFamily: {
@@ -99,13 +99,13 @@ export const typography = {
     normal: 1.5,
     relaxed: 1.75
   }
-}
+};
 
 export const transitions = {
   fast: '150ms ease-in-out',
   normal: '200ms ease-in-out',
   slow: '300ms ease-in-out'
-}
+};
 
 // Component styles
 export const card = {
@@ -115,7 +115,7 @@ export const card = {
     boxShadow: shadows.lg,
     padding: spacing.xl
   }
-}
+};
 
 export const button = {
   primary: {
@@ -149,7 +149,7 @@ export const button = {
     cursor: 'pointer',
     transition: transitions.normal
   }
-}
+};
 
 export const input = {
   base: {
@@ -162,7 +162,7 @@ export const input = {
     transition: transitions.normal,
     outline: 'none'
   }
-}
+};
 
 export const badge = {
   primary: {
@@ -183,7 +183,7 @@ export const badge = {
     background: `${colors.success}20`,
     color: colors.success
   }
-}
+};
 
 export default {
   colors,
@@ -196,4 +196,4 @@ export default {
   button,
   input,
   badge
-}
+};

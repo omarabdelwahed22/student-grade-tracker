@@ -600,10 +600,10 @@ exports.getGpa = async (req, res, next) => {
 
     // Group grades by course and calculate weighted average per course
     const courseGradeMap = {};
-    
+
     grades.forEach(grade => {
       const courseId = grade.course._id.toString();
-      
+
       if (!courseGradeMap[courseId]) {
         courseGradeMap[courseId] = {
           courseId: grade.course._id,

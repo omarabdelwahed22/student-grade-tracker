@@ -18,30 +18,30 @@ async function migrateStudents() {
 
     // Use native MongoDB driver to bypass Mongoose validation
     const db = mongoose.connection.db;
-    
+
     // Also check test database
     const testDb = mongoose.connection.client.db('test');
     const testCollections = await testDb.listCollections().toArray();
     console.log('Collections in test db:', testCollections.map(c => c.name));
-    
+
     const testCoursesCollection = testDb.collection('courses');
     const testCount = await testCoursesCollection.countDocuments();
     console.log(`Documents in test.courses: ${testCount}`);
-    
+
     // List all collections
     const collections = await db.listCollections().toArray();
     console.log('Available collections:', collections.map(c => c.name));
-    
+
     const coursesCollection = db.collection('courses');
-    
+
     // Check document count
     const count = await coursesCollection.countDocuments();
     console.log(`Total documents in courses collection: ${count}`);
-    
+
     // Get all courses using native driver
     const courses = await coursesCollection.find({}).toArray();
     console.log(`Found ${courses.length} courses to check`);
-    
+
     // Debug: show first course structure
     if (courses.length > 0) {
       console.log('Sample course structure:', JSON.stringify(courses[0], null, 2));
