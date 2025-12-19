@@ -14,7 +14,7 @@ module.exports = (err, req, res, next) => {
 
   // Log error for debugging
   console.error('Error:', err && err.stack ? err.stack : err);
-  
+
   // Send user-friendly error message
   const statusCode = err.status || err.statusCode || 500;
   const message = err.message || 'Internal Server Error';

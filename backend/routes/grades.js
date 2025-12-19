@@ -23,7 +23,7 @@ const createGradeRules = [
   body('assignmentName').optional().trim(),
   body('category').notEmpty().withMessage('Category is required').trim(),
   body('weight').optional().isNumeric().withMessage('Weight must be a number').custom((value) => {
-    if (value < 0 || value > 100) throw new Error('Weight must be between 0 and 100')
+    if (value < 0 || value > 100) throw new Error('Weight must be between 0 and 100');
     return true;
   }),
   body('score').isNumeric().withMessage('Score must be a number').custom((value) => {
@@ -43,7 +43,7 @@ const updateGradeRules = [
   body('assignmentName').optional().notEmpty().withMessage('Assignment name cannot be empty').trim(),
   body('category').optional().notEmpty().withMessage('Category cannot be empty').trim(),
   body('weight').optional().isNumeric().withMessage('Weight must be a number').custom((value) => {
-    if (value < 0 || value > 100) throw new Error('Weight must be between 0 and 100')
+    if (value < 0 || value > 100) throw new Error('Weight must be between 0 and 100');
     return true;
   }),
   body('score').optional().isNumeric().withMessage('Score must be a number').custom((value) => {

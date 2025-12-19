@@ -57,7 +57,7 @@ exports.getAllCourses = async (req, res, next) => {
         select: 'name email _id'
       })
       .sort('-createdAt');
-    
+
     res.json({ success: true, courses });
   } catch (err) {
     next(err);
@@ -77,7 +77,7 @@ exports.getCourseById = async (req, res, next) => {
         path: 'students.enrolledBy',
         select: 'name email _id'
       });
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -86,7 +86,7 @@ exports.getCourseById = async (req, res, next) => {
     const userId = req.user.id;
     const isInstructor = course.instructor._id.toString() === userId;
     const isEnrolled = course.students.some(s => s.student._id.toString() === userId);
-    
+
     if (!isInstructor && !isEnrolled && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Access denied' });
     }
@@ -101,7 +101,7 @@ exports.getCourseById = async (req, res, next) => {
 exports.createCourse = async (req, res, next) => {
   try {
     const { name, code, description, credits, semester, year, status, completedAt } = req.body;
-    
+
     // Set instructor to the authenticated user
     const course = new Course({
       name,
@@ -121,7 +121,7 @@ exports.createCourse = async (req, res, next) => {
 
     await course.save();
     await course.populate('instructor', 'email');
-    
+
     res.status(201).json({ course });
   } catch (err) {
     next(err);
@@ -132,7 +132,7 @@ exports.createCourse = async (req, res, next) => {
 exports.updateCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.id);
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -143,7 +143,7 @@ exports.updateCourse = async (req, res, next) => {
     }
 
     const { name, code, description, credits, semester, year, status, completedAt } = req.body;
-    
+
     if (name) course.name = name;
     if (code) course.code = code;
     if (description !== undefined) course.description = description;
@@ -171,7 +171,7 @@ exports.updateCourse = async (req, res, next) => {
       path: 'students.enrolledBy',
       select: 'name email _id'
     });
-    
+
     res.json({ course });
   } catch (err) {
     next(err);
@@ -182,7 +182,7 @@ exports.updateCourse = async (req, res, next) => {
 exports.deleteCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.id);
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -193,7 +193,7 @@ exports.deleteCourse = async (req, res, next) => {
     }
 
     await course.deleteOne();
-    
+
     res.json({ message: 'Course deleted successfully' });
   } catch (err) {
     next(err);
@@ -205,7 +205,7 @@ exports.enrollStudent = async (req, res, next) => {
   try {
     const { studentId } = req.body;
     const course = await Course.findById(req.params.id);
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -217,7 +217,7 @@ exports.enrollStudent = async (req, res, next) => {
       const enrolledByMatch = s.enrolledBy ? s.enrolledBy.toString() === req.user.id : false;
       return studentIdMatch && (enrolledByMatch || !s.enrolledBy); // If no enrolledBy, consider it enrolled
     });
-    
+
     if (alreadyEnrolled) {
       return res.status(400).json({ message: 'Student is already enrolled by you' });
     }
@@ -235,7 +235,7 @@ exports.enrollStudent = async (req, res, next) => {
       path: 'students.enrolledBy',
       select: 'name email _id'
     });
-    
+
     res.json({ course, message: 'Student enrolled successfully' });
   } catch (err) {
     next(err);
@@ -247,7 +247,7 @@ exports.unenrollStudent = async (req, res, next) => {
   try {
     const { studentId } = req.body;
     const course = await Course.findById(req.params.id);
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -259,7 +259,7 @@ exports.unenrollStudent = async (req, res, next) => {
       const enrolledByMatch = s.enrolledBy ? s.enrolledBy.toString() === req.user.id : true; // If no enrolledBy, allow removal
       return !(studentIdMatch && enrolledByMatch);
     });
-    
+
     await course.save();
     await course.populate({
       path: 'students.student',
@@ -269,7 +269,7 @@ exports.unenrollStudent = async (req, res, next) => {
       path: 'students.enrolledBy',
       select: 'name email _id'
     });
-    
+
     res.json({ course, message: 'Student unenrolled successfully' });
   } catch (err) {
     next(err);

@@ -5,7 +5,7 @@ const getNotifications = async (req, res) => {
   try {
     const { unreadOnly } = req.query;
     const filter = { recipient: req.user.id };
-    
+
     if (unreadOnly === 'true') {
       filter.read = false;
     }
