@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getMyCourses, getAllCourses, createCourse, updateCourse, deleteCourse, enrollStudent, unenrollStudent } from '../services/courses'
+import { getGrades } from '../services/grades'
 import { getAllUsers } from '../services/users'
 
 export default function Courses() {
@@ -12,6 +13,11 @@ export default function Courses() {
   const [selectedManagingCourse, setSelectedManagingCourse] = useState(null) // Selected from dropdown
   const [showEnrollModal, setShowEnrollModal] = useState(false)
   const [notification, setNotification] = useState(null)
+  const [courseDetails, setCourseDetails] = useState(null)
+  const [courseGrades, setCourseGrades] = useState([])
+  const [courseLoading, setCourseLoading] = useState(false)
+  const [courseError, setCourseError] = useState(null)
+  const [courseAverages, setCourseAverages] = useState({})
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -24,6 +30,66 @@ export default function Courses() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const isInstructor = user.role === 'instructor'
   const isStudent = user.role === 'student'
+
+  const formatStatus = (status) => {
+    if (status === 'completed') return { label: 'Completed', color: '#10b981', bg: '#ecfdf3' }
+    if (status === 'archived') return { label: 'Archived', color: '#6b7280', bg: '#f3f4f6' }
+    return { label: 'In Progress', color: '#2563eb', bg: '#eff6ff' }
+  }
+
+  const formatDate = (value) => {
+    if (!value) return '—'
+    const d = new Date(value)
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString()
+  }
+
+  const computeAverages = (grades) => {
+    const map = {}
+    grades.forEach(g => {
+      const courseId = g.course?._id || g.course
+      if (!courseId) return
+      const percentage = g.maxScore ? (g.score / g.maxScore) * 100 : 0
+      const weight = g.weight || 0
+      if (!map[courseId]) {
+        map[courseId] = { weightedSum: 0, weightTotal: 0, sum: 0, count: 0 }
+      }
+      map[courseId].sum += percentage
+      map[courseId].count += 1
+      map[courseId].weightedSum += percentage * weight
+      map[courseId].weightTotal += weight
+    })
+
+    const letter = (pct) => {
+      if (pct >= 90) return 'A'
+      if (pct >= 80) return 'B'
+      if (pct >= 70) return 'C'
+      if (pct >= 60) return 'D'
+      return 'F'
+    }
+
+    const result = {}
+    Object.keys(map).forEach(cid => {
+      const data = map[cid]
+      const pct = data.weightTotal > 0
+        ? data.weightedSum / data.weightTotal
+        : data.count > 0 ? data.sum / data.count : 0
+      result[cid] = {
+        percentage: Math.round(pct * 100) / 100,
+        letter: letter(pct)
+      }
+    })
+    return result
+  }
+
+  const letterColors = (letter) => {
+    switch (letter) {
+      case 'A': return { fg: '#065f46', bg: '#d1fae5', border: '#10b981' }
+      case 'B': return { fg: '#1e3a8a', bg: '#dbeafe', border: '#60a5fa' }
+      case 'C': return { fg: '#92400e', bg: '#fef3c7', border: '#f59e0b' }
+      case 'D': return { fg: '#7f1d1d', bg: '#fee2e2', border: '#f87171' }
+      default: return { fg: '#111827', bg: '#e5e7eb', border: '#d1d5db' }
+    }
+  }
 
   useEffect(() => {
     loadCourses()
@@ -70,6 +136,13 @@ export default function Courses() {
         // Students see their enrolled courses
         data = await getMyCourses()
         setMyCourses(data.courses || [])
+        try {
+          const gRes = await getGrades({ studentId: user.id })
+          const averages = computeAverages(gRes.grades || [])
+          setCourseAverages(averages)
+        } catch (err) {
+          console.warn('Failed to load student grades for averages', err)
+        }
       }
       setError(null)
     } catch (err) {
@@ -129,6 +202,26 @@ export default function Courses() {
       showNotification('Student unenrolled successfully', 'success')
     } catch (err) {
       showNotification(err.message || 'Failed to unenroll student', 'error')
+    }
+  }
+
+  const handleOpenCourse = async (course) => {
+    setCourseDetails(course)
+    setCourseGrades([])
+    setCourseError(null)
+    try {
+      setCourseLoading(true)
+      const params = { courseId: course._id }
+      if (isStudent && user?.id) {
+        params.studentId = user.id
+      }
+      const res = await getGrades(params)
+      const grades = (res.grades || []).slice().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      setCourseGrades(grades)
+    } catch (err) {
+      setCourseError(err.message || 'Failed to load grades')
+    } finally {
+      setCourseLoading(false)
     }
   }
 
@@ -432,6 +525,11 @@ export default function Courses() {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
               }}
+              onClick={() => {
+                if (!isInstructor) {
+                  handleOpenCourse(course)
+                }
+              }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
                 <div style={{ flex: 1 }}>
@@ -461,66 +559,92 @@ export default function Courses() {
                     {course.semester} {course.year}
                   </div>
                 </div>
-                {isInstructor && (
-                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                  {course.status === 'completed' && courseAverages[course._id] && (() => {
+                    const letter = courseAverages[course._id].letter
+                    const colors = letterColors(letter)
+                    return (
+                      <span style={{
+                        padding: '6px 10px',
+                        borderRadius: 999,
+                        border: `1px solid ${colors.border}`,
+                        background: colors.bg,
+                        color: colors.fg,
+                        fontSize: 13,
+                        fontWeight: 800
+                      }}>
+                        {letter}
+                      </span>
+                    )
+                  })()}
+
+                  {isInstructor && (
+                    <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (!isInstructor) return
+                            setSelectedManagingCourse(course)
+                            setShowEnrollModal(true)
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: 13,
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontWeight: 600
+                          }}
+                        >
+                          Manage
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDelete(course._id)
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: 13,
+                            background: 'var(--error-light)',
+                            color: 'var(--error)',
+                            border: '1px solid var(--error)',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontWeight: 600
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
                       <button
-                        onClick={() => {
-                          setSelectedManagingCourse(course)
-                          setShowEnrollModal(true)
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleToggleStatus(course._id, course.status)
                         }}
                         style={{
                           padding: '6px 12px',
                           fontSize: 13,
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          background: course.status === 'completed' 
+                            ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                            : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                           color: 'white',
                           border: 'none',
                           borderRadius: 6,
                           cursor: 'pointer',
-                          fontWeight: 600
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap'
                         }}
                       >
-                        Manage
-                      </button>
-                      <button
-                        onClick={() => handleDelete(course._id)}
-                        style={{
-                          padding: '6px 12px',
-                          fontSize: 13,
-                          background: 'var(--error-light)',
-                          color: 'var(--error)',
-                          border: '1px solid var(--error)',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >
-                        Delete
+                        {course.status === 'completed' ? '↺ Reopen' : '✓ Complete'}
                       </button>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleToggleStatus(course._id, course.status)
-                      }}
-                      style={{
-                        padding: '6px 12px',
-                        fontSize: 13,
-                        background: course.status === 'completed' 
-                          ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-                          : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 6,
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {course.status === 'completed' ? '↺ Reopen' : '✓ Complete'}
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
               {course.description && (
                 <p style={{ margin: '12px 0', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>
@@ -533,6 +657,104 @@ export default function Courses() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Course Detail Modal (Student) */}
+      {isStudent && courseDetails && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.55)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1200
+        }}>
+          <div style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 16,
+            padding: 24,
+            width: 'min(640px, 92%)',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: 'var(--shadow-lg)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>{courseDetails.code}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{courseDetails.name}</div>
+              </div>
+              <button
+                onClick={() => setCourseDetails(null)}
+                style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--text-muted)' }}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+              <span style={{
+                padding: '4px 10px',
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 700,
+                color: formatStatus(courseDetails.status).color,
+                background: formatStatus(courseDetails.status).bg
+              }}>
+                {formatStatus(courseDetails.status).label}
+              </span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{courseDetails.semester} {courseDetails.year}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Credits: {courseDetails.credits}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Completed at: {formatDate(courseDetails.completedAt)}</span>
+            </div>
+
+            <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--text-muted)' }}>
+              {courseDetails.description || 'No description provided.'}
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ fontWeight: 700, color: 'var(--text)' }}>Recent Grades</div>
+                {courseLoading && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Loading...</span>}
+              </div>
+              {courseError && (
+                <div style={{ color: 'var(--error)', fontSize: 13, marginBottom: 8 }}>{courseError}</div>
+              )}
+              {!courseLoading && courseGrades.length === 0 && !courseError && (
+                <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>No grades yet for this course.</div>
+              )}
+              {courseGrades.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {courseGrades.slice(0, 5).map(g => (
+                    <div key={g._id} style={{
+                      padding: 12,
+                      border: '1px solid var(--border)',
+                      borderRadius: 10,
+                      background: 'var(--bg)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div>
+                        <div style={{ fontWeight: 700, color: 'var(--text)' }}>{g.category || 'Grade'}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(g.createdAt)}</div>
+                      </div>
+                      <div style={{ fontWeight: 700, color: 'var(--text)' }}>
+                        {g.score}/{g.maxScore}
+                        {g.weight ? <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 6 }}>({g.weight}% weight)</span> : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
