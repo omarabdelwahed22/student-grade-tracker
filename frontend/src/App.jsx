@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { ThemeProvider } from './contexts/ThemeContext'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
 import StudentHome from './pages/StudentHome'
 import InstructorHome from './pages/InstructorHome'
 import Students from './pages/Students'
@@ -12,6 +14,7 @@ import StudentDetails from './pages/StudentDetails'
 import NotAuthorized from './pages/NotAuthorized'
 import Courses from './pages/Courses'
 import Grades from './pages/Grades'
+import Statistics from './pages/Statistics'
 import Settings from './pages/Settings'
 import RoleRoute from './components/RoleRoute'
 
@@ -36,15 +39,18 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <AppRoutes auth={auth} handleLogin={handleLogin} handleLogout={handleLogout} />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AppRoutes auth={auth} handleLogin={handleLogin} handleLogout={handleLogout} />
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
 function AppRoutes({ auth, handleLogin, handleLogout }) {
   const location = useLocation()
   const hideSidebar = location.pathname === '/login' || location.pathname === '/register'
+    || location.pathname === '/forgot-password'
 
   return (
     <div className="app-root">
@@ -52,14 +58,10 @@ function AppRoutes({ auth, handleLogin, handleLogout }) {
       <div className="main-area">
         <Header />
         <main>
-          <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12}}>
-            {auth.token ? (
-              <button className="btn" onClick={handleLogout}>Logout</button>
-            ) : null}
-          </div>
           <Routes>
             <Route path="/login" element={auth.token ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />} />
             <Route path="/register" element={auth.token ? <Navigate to="/" replace /> : <Register onRegister={handleLogin} />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/not-authorized" element={<NotAuthorized />} />
             <Route path="/student" element={<RoleRoute allowedRoles={["student"]}><StudentHome /></RoleRoute>} />
             <Route path="/instructor" element={<RoleRoute allowedRoles={["instructor"]}><InstructorHome /></RoleRoute>} />
@@ -67,6 +69,7 @@ function AppRoutes({ auth, handleLogin, handleLogout }) {
             <Route path="/students/:id" element={<RoleRoute allowedRoles={["instructor"]}><StudentDetails /></RoleRoute>} />
             <Route path="/courses" element={<RoleRoute allowedRoles={["student", "instructor"]}><Courses /></RoleRoute>} />
             <Route path="/grades" element={<RoleRoute allowedRoles={["student", "instructor"]}><Grades /></RoleRoute>} />
+            <Route path="/statistics" element={<RoleRoute allowedRoles={["student", "instructor"]}><Statistics /></RoleRoute>} />
             <Route path="/settings" element={<RoleRoute allowedRoles={["student", "instructor"]}><Settings /></RoleRoute>} />
             <Route
               path="/"

@@ -11,9 +11,8 @@ const gradeSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
-  assignment: {
+  assignmentName: {
     type: String,
-    required: true,
     trim: true
   },
   score: {
@@ -29,8 +28,8 @@ const gradeSchema = new mongoose.Schema({
   category: {
     type: String,
     trim: true,
-    enum: ['Homework', 'Quiz', 'Midterm', 'Final', 'Project', 'Lab', 'Exam', 'Other'],
-    default: 'Homework'
+    enum: ['Quiz', 'Midterm', 'Final', 'Project', 'Lab', 'Exam', 'Assignment', 'Other'],
+    default: 'Assignment'
   },
   weight: {
     type: Number,
@@ -46,6 +45,9 @@ const gradeSchema = new mongoose.Schema({
   feedback: {
     type: String,
     trim: true
+  },
+  dueDate: {
+    type: Date
   }
 }, {
   timestamps: true

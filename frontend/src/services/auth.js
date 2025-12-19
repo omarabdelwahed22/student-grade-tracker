@@ -8,4 +8,8 @@ export async function register(email, password, role='student', name='', student
   return api.post('/auth/register', { email, password, role, name, studentId })
 }
 
-export default { login, register }
+export async function forgotPassword(email) {
+  return api.post('/auth/forgot', { email })
+}
+
+export default { login, register, forgotPassword }

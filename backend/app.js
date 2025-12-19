@@ -34,6 +34,12 @@ app.use('/api/courses', coursesRoute);
 // Grades routes
 const gradesRoute = require('./routes/grades');
 app.use('/api/grades', gradesRoute);
+// Assignments routes
+const assignmentsRoute = require('./routes/assignments');
+app.use('/api/assignments', assignmentsRoute);
+// Notifications routes
+const notificationsRoute = require('./routes/notifications');
+app.use('/api/notifications', notificationsRoute);
 
 // Basic root route
 app.get('/', (req, res) => {

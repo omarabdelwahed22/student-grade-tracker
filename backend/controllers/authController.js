@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_change_me';
 
@@ -149,6 +150,33 @@ exports.changePassword = async (req, res, next) => {
     await user.save();
 
     res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Do not reveal whether user exists
+      return res.json({ message: 'If an account exists, a reset email was sent.' });
+    }
+
+    const tempPassword = crypto.randomBytes(4).toString('hex'); // 8 chars
+    user.password = await bcrypt.hash(tempPassword, 10);
+    await user.save();
+
+    // In a real app, send email here. For now, return temp password so the user can log in.
+    res.json({
+      message: 'Temporary password generated. Use it to log in and change your password.',
+      tempPassword
+    });
   } catch (err) {
     next(err);
   }

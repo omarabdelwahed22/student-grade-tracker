@@ -36,8 +36,13 @@ const passwordChangeRules = [
   body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
 ];
 
+const forgotPasswordRules = [
+  body('email').isEmail().withMessage('Valid email required')
+];
+
 router.post('/register', registerRules, validateRequest, authController.register);
 router.post('/login', loginRules, validateRequest, authController.login);
+router.post('/forgot', forgotPasswordRules, validateRequest, authController.forgotPassword);
 router.put('/profile', authMiddleware, profileUpdateRules, validateRequest, authController.updateProfile);
 router.put('/password', authMiddleware, passwordChangeRules, validateRequest, authController.changePassword);
 

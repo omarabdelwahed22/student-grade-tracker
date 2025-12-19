@@ -23,14 +23,30 @@ const courseSchema = new mongoose.Schema({
     required: [true, 'Instructor is required']
   },
   students: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    enrolledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    }
   }],
   credits: {
     type: Number,
     default: 3,
     min: 1,
     max: 6
+  },
+  status: {
+    type: String,
+    enum: ['in-progress', 'completed', 'archived'],
+    default: 'in-progress'
+  },
+  completedAt: {
+    type: Date
   },
   semester: {
     type: String,

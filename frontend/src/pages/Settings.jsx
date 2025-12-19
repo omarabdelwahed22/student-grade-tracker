@@ -73,16 +73,16 @@ export default function Settings() {
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>Settings</h1>
-        <p style={{ margin: '8px 0 0 0', color: '#718096' }}>Manage your account settings and preferences</p>
+        <p style={{ margin: '8px 0 0 0', color: 'var(--text-muted)' }}>Manage your account settings and preferences</p>
       </div>
 
       {message && (
         <div style={{
           padding: 14,
           marginBottom: 20,
-          background: '#d1fae5',
-          border: '1px solid #6ee7b7',
-          color: '#065f46',
+          background: 'var(--success-light)',
+          border: '1px solid var(--success)',
+          color: 'var(--success)',
           borderRadius: 10,
           fontWeight: 500
         }}>
@@ -94,9 +94,9 @@ export default function Settings() {
         <div style={{
           padding: 14,
           marginBottom: 20,
-          background: '#fee',
-          border: '1px solid #fcc',
-          color: '#c33',
+          background: 'var(--error-light)',
+          border: '1px solid var(--error)',
+          color: 'var(--error)',
           borderRadius: 10,
           fontWeight: 500
         }}>
@@ -106,16 +106,17 @@ export default function Settings() {
 
       {/* Profile Section */}
       <div style={{
-        background: 'white',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
         borderRadius: 14,
         padding: 32,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+        boxShadow: 'var(--shadow-lg)',
         marginBottom: 24
       }}>
         <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 600 }}>Profile Information</h2>
         <form onSubmit={handleProfileUpdate}>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#2d3748' }}>
+            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
               Full Name
             </label>
             <input
@@ -124,7 +125,7 @@ export default function Settings() {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: 10,
                 fontSize: 15
               }}
@@ -134,7 +135,7 @@ export default function Settings() {
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#2d3748' }}>
+            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
               Email Address
             </label>
             <input
@@ -143,7 +144,7 @@ export default function Settings() {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: 10,
                 fontSize: 15
               }}
@@ -154,7 +155,7 @@ export default function Settings() {
 
           {user.role === 'student' && (
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#2d3748' }}>
+              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
                 Student ID
               </label>
               <input
@@ -163,15 +164,15 @@ export default function Settings() {
                 style={{
                   width: '100%',
                   padding: '12px 16px',
-                  border: '2px solid #e2e8f0',
+                  border: '2px solid var(--border)',
                   borderRadius: 10,
                   fontSize: 15,
-                  background: '#f7fafc',
+                  background: 'var(--gray-100)',
                   cursor: 'not-allowed'
                 }}
                 value={profileData.studentId}
               />
-              <p style={{ margin: '6px 0 0 0', fontSize: 13, color: '#718096' }}>
+              <p style={{ margin: '6px 0 0 0', fontSize: 13, color: 'var(--text-muted)' }}>
                 Student ID cannot be changed
               </p>
             </div>
@@ -179,15 +180,13 @@ export default function Settings() {
 
           <div style={{
             padding: 16,
-            background: '#f7fafc',
+            background: 'var(--bg)',
             borderRadius: 10,
-            marginBottom: 20
+            marginBottom: 20,
+            border: '1px solid var(--border)'
           }}>
-            <p style={{ margin: 0, fontSize: 14, color: '#4a5568' }}>
-              <strong>Role:</strong> {user.role === 'student' ? 'Student' : 'Instructor'}
-            </p>
-            <p style={{ margin: '8px 0 0 0', fontSize: 14, color: '#4a5568' }}>
-              <strong>User ID:</strong> {user.id}
+            <p style={{ margin: 0, fontSize: 14, color: 'var(--text-muted)' }}>
+              <strong style={{ color: 'var(--text)' }}>Role:</strong> {user.role === 'student' ? 'Student' : 'Instructor'}
             </p>
           </div>
 
@@ -213,15 +212,16 @@ export default function Settings() {
 
       {/* Password Section */}
       <div style={{
-        background: 'white',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
         borderRadius: 14,
         padding: 32,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
+        boxShadow: 'var(--shadow-lg)'
       }}>
-        <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 600 }}>Change Password</h2>
+        <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 600, color: 'var(--text)' }}>Change Password</h2>
         <form onSubmit={handlePasswordChange}>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#2d3748' }}>
+            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
               Current Password
             </label>
             <input
@@ -230,9 +230,11 @@ export default function Settings() {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: 10,
-                fontSize: 15
+                fontSize: 15,
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={passwordData.currentPassword}
               onChange={e => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
@@ -240,7 +242,7 @@ export default function Settings() {
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#2d3748' }}>
+            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
               New Password
             </label>
             <input
@@ -250,9 +252,11 @@ export default function Settings() {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: 10,
-                fontSize: 15
+                fontSize: 15,
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={passwordData.newPassword}
               onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
@@ -260,7 +264,7 @@ export default function Settings() {
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#2d3748' }}>
+            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
               Confirm New Password
             </label>
             <input
@@ -270,9 +274,11 @@ export default function Settings() {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: 10,
-                fontSize: 15
+                fontSize: 15,
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={passwordData.confirmPassword}
               onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}

@@ -53,30 +53,52 @@ export default function Register({ onRegister }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'var(--bg)',
       padding: '20px'
     }}>
       <div style={{
-        background: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(circle at 20% 20%, rgba(102,126,234,0.15), transparent 28%), radial-gradient(circle at 80% 10%, rgba(118,75,162,0.12), transparent 30%), radial-gradient(circle at 50% 80%, rgba(102,126,234,0.1), transparent 26%)',
+        pointerEvents: 'none'
+      }} />
+      <div style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '18px',
+        boxShadow: 'var(--shadow-lg)',
         width: '100%',
         maxWidth: '440px',
-        padding: '48px 40px'
+        padding: '44px 38px',
+        position: 'relative'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            fontWeight: 800,
+            marginBottom: 12
+          }}>
+            SGT
+          </div>
           <h1 style={{
-            fontSize: '32px',
+            fontSize: '30px',
             fontWeight: '700',
-            color: '#1a202c',
-            margin: '0 0 8px 0'
+            color: 'var(--text)',
+            margin: '0 0 6px 0'
           }}>Create Account</h1>
-          <p style={{ color: '#718096', margin: 0, fontSize: '15px' }}>Join Student Grade Tracker today</p>
+          <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '15px' }}>Join Student Grade Tracker today</p>
         </div>
 
         <form onSubmit={submit}>
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#2d3748' }}>Full Name</label>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Full Name</label>
             <input
               type="text"
               required
@@ -84,21 +106,29 @@ export default function Register({ onRegister }) {
                 width: '100%',
                 padding: '14px 16px',
                 fontSize: '15px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: '10px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-                fontFamily: 'inherit'
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+                fontFamily: 'inherit',
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={name}
               onChange={e => setName(e.target.value)}
-              onFocus={e => e.target.style.borderColor = '#667eea'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-              placeholder="Jane Doe"
+              onFocus={e => {
+                e.target.style.borderColor = '#667eea'
+                e.target.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.25)'
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = 'var(--border)'
+                e.target.style.boxShadow = 'none'
+              }}
+              placeholder="Mohamed Hassan"
             />
           </div>
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#2d3748' }}>Email Address</label>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Email Address</label>
             <input
               type="email"
               required
@@ -106,16 +136,24 @@ export default function Register({ onRegister }) {
                 width: '100%',
                 padding: '14px 16px',
                 fontSize: '15px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: '10px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-                fontFamily: 'inherit'
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+                fontFamily: 'inherit',
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={email}
               onChange={e => setEmail(e.target.value)}
-              onFocus={e => e.target.style.borderColor = '#667eea'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              onFocus={e => {
+                e.target.style.borderColor = '#667eea'
+                e.target.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.25)'
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = 'var(--border)'
+                e.target.style.boxShadow = 'none'
+              }}
               placeholder="you@example.com"
             />
           </div>
@@ -125,7 +163,7 @@ export default function Register({ onRegister }) {
               marginBottom: '8px',
               fontSize: '14px',
               fontWeight: '600',
-              color: '#2d3748'
+              color: 'var(--text)'
             }}>Password</label>
             <input
               type="password"
@@ -135,16 +173,24 @@ export default function Register({ onRegister }) {
                 width: '100%',
                 padding: '14px 16px',
                 fontSize: '15px',
-                border: '2px solid #e2e8f0',
+                border: '2px solid var(--border)',
                 borderRadius: '10px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-                fontFamily: 'inherit'
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+                fontFamily: 'inherit',
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
               value={password}
               onChange={e => setPassword(e.target.value)}
-              onFocus={e => e.target.style.borderColor = '#667eea'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              onFocus={e => {
+                e.target.style.borderColor = '#667eea'
+                e.target.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.25)'
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = 'var(--border)'
+                e.target.style.boxShadow = 'none'
+              }}
               placeholder="At least 6 characters"
             />
           </div>
@@ -154,14 +200,15 @@ export default function Register({ onRegister }) {
               marginBottom: '8px',
               fontSize: '14px',
               fontWeight: '600',
-              color: '#2d3748'
+              color: 'var(--text)'
             }}>Account Type</label>
             <div style={{
               display: 'flex',
-              gap: '12px',
+              gap: '10px',
               padding: '6px',
-              background: '#f7fafc',
-              borderRadius: '12px'
+              background: 'var(--bg)',
+              borderRadius: '12px',
+              border: '1px solid var(--border)'
             }}>
               <button
                 type="button"
@@ -174,9 +221,9 @@ export default function Register({ onRegister }) {
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: role === 'student' ? 'white' : 'transparent',
-                  color: role === 'student' ? '#667eea' : '#718096',
-                  boxShadow: role === 'student' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
+                  background: role === 'student' ? 'var(--surface)' : 'transparent',
+                  color: role === 'student' ? '#667eea' : 'var(--text-muted)',
+                  boxShadow: role === 'student' ? '0 4px 14px rgba(0,0,0,0.08)' : 'none'
                 }}
                 onClick={() => setRole('student')}
               >
@@ -193,9 +240,9 @@ export default function Register({ onRegister }) {
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: role === 'instructor' ? 'white' : 'transparent',
-                  color: role === 'instructor' ? '#667eea' : '#718096',
-                  boxShadow: role === 'instructor' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
+                  background: role === 'instructor' ? 'var(--surface)' : 'transparent',
+                  color: role === 'instructor' ? '#667eea' : 'var(--text-muted)',
+                  boxShadow: role === 'instructor' ? '0 4px 14px rgba(0,0,0,0.08)' : 'none'
                 }}
                 onClick={() => setRole('instructor')}
               >
@@ -210,7 +257,7 @@ export default function Register({ onRegister }) {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: '600',
-                color: '#2d3748'
+                color: 'var(--text)'
               }}>Student ID (9 digits)</label>
               <input
                 type="text"
@@ -221,19 +268,27 @@ export default function Register({ onRegister }) {
                   width: '100%',
                   padding: '14px 16px',
                   fontSize: '15px',
-                  border: '2px solid #e2e8f0',
+                  border: '2px solid var(--border)',
                   borderRadius: '10px',
                   outline: 'none',
-                  transition: 'border-color 0.2s',
-                  fontFamily: 'inherit'
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                  fontFamily: 'inherit',
+                  background: 'var(--bg)',
+                  color: 'var(--text)'
                 }}
                 value={studentId}
                 onChange={e => setStudentId(e.target.value)}
-                onFocus={e => e.target.style.borderColor = '#667eea'}
-                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                onFocus={e => {
+                  e.target.style.borderColor = '#667eea'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.25)'
+                }}
+                onBlur={e => {
+                  e.target.style.borderColor = 'var(--border)'
+                  e.target.style.boxShadow = 'none'
+                }}
                 placeholder="e.g., 123456789"
               />
-              <div style={{ marginTop: '6px', color: '#718096', fontSize: '13px' }}>
+              <div style={{ marginTop: '6px', color: 'var(--text-muted)', fontSize: '13px' }}>
                   Students must provide their 9-digit institutional ID for enrollment and grading.
               </div>
             </div>
@@ -274,9 +329,9 @@ export default function Register({ onRegister }) {
           marginTop: '32px',
           textAlign: 'center',
           paddingTop: '24px',
-          borderTop: '1px solid #e2e8f0'
+          borderTop: '1px solid var(--border)'
         }}>
-          <p style={{ color: '#718096', fontSize: '14px', margin: '0 0 16px 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '0 0 16px 0' }}>
             Already have an account?
           </p>
           <button
@@ -286,7 +341,7 @@ export default function Register({ onRegister }) {
               fontSize: '15px',
               fontWeight: '600',
               color: '#667eea',
-              background: 'white',
+              background: 'var(--surface)',
               border: '2px solid #667eea',
               borderRadius: '10px',
               cursor: 'pointer',
@@ -298,7 +353,7 @@ export default function Register({ onRegister }) {
               e.target.style.color = 'white'
             }}
             onMouseLeave={e => {
-              e.target.style.background = 'white'
+              e.target.style.background = 'var(--surface)'
               e.target.style.color = '#667eea'
             }}
           >

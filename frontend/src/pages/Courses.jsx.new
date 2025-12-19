@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { getMyCourses, getAllCourses, createCourse, updateCourse, deleteCourse, enrollStudent, unenrollStudent } from '../services/courses'
+import { getMyCourses, getAllCourses, createCourse, deleteCourse, enrollStudent, unenrollStudent, updateCourse } from '../services/courses'
+import { getGrades } from '../services/grades'
 import { getAllUsers } from '../services/users'
 
 export default function Courses() {
@@ -52,20 +53,13 @@ export default function Courses() {
       let data
 
       if (isInstructor) {
-        // Load all courses to find courses where instructor enrolled students
+        // Load my courses
+        data = await getMyCourses()
+        setMyCourses(data.courses || [])
+
+        // Load all courses for dropdown
         const allData = await getAllCourses()
-        const allCoursesData = allData.courses || []
-        setAllCourses(allCoursesData)
-        
-        // Filter courses: instructor created OR has enrolled at least one student
-        const myCoursesFiltered = allCoursesData.filter(course => {
-          // Course instructor is me
-          const isMyCreatedCourse = course.instructor?._id === user.id
-          // I enrolled at least one student in this course
-          const hasMyStudents = course.students?.some(s => s.enrolledBy?._id === user.id)
-          return isMyCreatedCourse || hasMyStudents
-        })
-        setMyCourses(myCoursesFiltered)
+        setAllCourses(allData.courses || [])
       } else {
         // Students see their enrolled courses
         data = await getMyCourses()
@@ -113,8 +107,7 @@ export default function Courses() {
   const handleEnrollStudent = async (studentId) => {
     try {
       await enrollStudent(selectedManagingCourse._id, studentId)
-      // Reload ALL courses to refresh everything
-      await loadCourses()
+      loadCourses()
       showNotification('Student enrolled successfully', 'success')
     } catch (err) {
       showNotification(err.message || 'Failed to enroll student', 'error')
@@ -124,22 +117,10 @@ export default function Courses() {
   const handleUnenrollStudent = async (studentId) => {
     try {
       await unenrollStudent(selectedManagingCourse._id, studentId)
-      // Reload ALL courses to refresh everything
-      await loadCourses()
+      loadCourses()
       showNotification('Student unenrolled successfully', 'success')
     } catch (err) {
       showNotification(err.message || 'Failed to unenroll student', 'error')
-    }
-  }
-
-  const handleToggleStatus = async (courseId, currentStatus) => {
-    try {
-      const newStatus = currentStatus === 'completed' ? 'in-progress' : 'completed'
-      await updateCourse(courseId, { status: newStatus })
-      await loadCourses()
-      showNotification(`Course marked as ${newStatus === 'completed' ? 'completed' : 'in progress'}`, 'success')
-    } catch (err) {
-      showNotification(err.message || 'Failed to update course status', 'error')
     }
   }
 
@@ -156,12 +137,11 @@ export default function Courses() {
     ) || []
   }
 
-  // Get available students (not enrolled by ANY instructor in this course)
+  // Get available students (not enrolled by me in this course)
   const getAvailableStudents = () => {
     if (!selectedManagingCourse) return []
-    // Get ALL enrolled student IDs (by any instructor)
-    const allEnrolledIds = selectedManagingCourse.students?.map(e => e.student?._id) || []
-    return allStudents.filter(s => !allEnrolledIds.includes(s._id))
+    const myEnrolledIds = getMyEnrolledStudents().map(e => e.student?._id)
+    return allStudents.filter(s => !myEnrolledIds.includes(s._id))
   }
 
   if (loading) return <div style={{ padding: 24 }}>Loading courses...</div>
@@ -170,7 +150,7 @@ export default function Courses() {
     <div style={{ padding: 24 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--text)' }}>
+        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>
           {isInstructor ? 'My Courses' : 'Enrolled Courses'}
         </h1>
         {isInstructor && (
@@ -180,12 +160,12 @@ export default function Courses() {
               padding: '12px 24px',
               fontSize: 15,
               fontWeight: 600,
-              background: 'var(--primary-gradient)',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               border: 'none',
               borderRadius: 10,
               cursor: 'pointer',
-              boxShadow: 'var(--shadow-primary)'
+              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
             }}
           >
             {showCreateForm ? 'Cancel' : '+ Create Course'}
@@ -198,7 +178,7 @@ export default function Courses() {
           padding: 16,
           marginBottom: 24,
           background: 'var(--error-light)',
-          border: '1px solid var(--error)',
+          border: '1px solid #fcc',
           borderRadius: 10,
           color: 'var(--error)'
         }}>
@@ -214,16 +194,16 @@ export default function Courses() {
           background: 'var(--surface)',
           border: '1px solid var(--border)',
           borderRadius: 16,
-          boxShadow: 'var(--shadow-sm)'
+          boxShadow: 'var(--shadow-lg)'
         }}>
-          <h2 style={{ marginTop: 0, fontSize: 20, fontWeight: 600, color: 'var(--text)' }}>Create New Course</h2>
+          <h2 style={{ marginTop: 0, fontSize: 20, fontWeight: 600 }}>Create New Course</h2>
           <form onSubmit={handleCreate}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600 }}>Course Name *</label>
                 <input
                   required
-                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, background: 'var(--bg)', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15 }}
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Data Structures"
@@ -233,7 +213,7 @@ export default function Courses() {
                 <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600 }}>Course Code *</label>
                 <input
                   required
-                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, background: 'var(--bg)', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15 }}
                   value={formData.code}
                   onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                   placeholder="e.g., CS201"
@@ -243,7 +223,7 @@ export default function Courses() {
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600 }}>Description</label>
               <textarea
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, minHeight: 80, fontFamily: 'inherit', background: 'var(--bg)', color: 'var(--text)' }}
+                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, minHeight: 80, fontFamily: 'inherit' }}
                 value={formData.description}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Course description..."
@@ -256,7 +236,7 @@ export default function Courses() {
                   type="number"
                   min="1"
                   max="6"
-                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, background: 'var(--bg)', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15 }}
                   value={formData.credits}
                   onChange={e => setFormData({ ...formData, credits: parseInt(e.target.value) })}
                 />
@@ -264,7 +244,7 @@ export default function Courses() {
               <div>
                 <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600 }}>Semester</label>
                 <input
-                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, background: 'var(--bg)', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15 }}
                   value={formData.semester}
                   onChange={e => setFormData({ ...formData, semester: e.target.value })}
                   placeholder="e.g., Fall"
@@ -274,7 +254,7 @@ export default function Courses() {
                 <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600 }}>Year</label>
                 <input
                   type="number"
-                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15, background: 'var(--bg)', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--border)', borderRadius: 10, fontSize: 15 }}
                   value={formData.year}
                   onChange={e => setFormData({ ...formData, year: parseInt(e.target.value) })}
                 />
@@ -286,12 +266,12 @@ export default function Courses() {
                 padding: '12px 32px',
                 fontSize: 16,
                 fontWeight: 600,
-                background: 'var(--primary-gradient)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 10,
                 cursor: 'pointer',
-                boxShadow: 'var(--shadow-primary)'
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
               }}
             >
               Create Course
@@ -310,7 +290,7 @@ export default function Courses() {
           borderRadius: 16,
           boxShadow: 'var(--shadow-sm)'
         }}>
-          <h2 style={{ margin: '0 0 12px 0', fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>Manage Existing Courses</h2>
+          <h2 style={{ margin: '0 0 12px 0', fontSize: 18, fontWeight: 600 }}>Manage Existing Courses</h2>
           <p style={{ margin: '0 0 16px 0', fontSize: 13, color: 'var(--text-muted)' }}>Select a course to manage student enrollments</p>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
             <div style={{ flex: 1, maxWidth: 400 }}>
@@ -324,7 +304,7 @@ export default function Courses() {
                   borderRadius: '10px',
                   border: '1px solid var(--border)',
                   fontSize: 15,
-                  background: 'var(--bg)',
+                  background: 'var(--surface)',
                   color: 'var(--text)',
                   cursor: 'pointer'
                 }}
@@ -421,12 +401,11 @@ export default function Courses() {
                 border: '1px solid var(--border)',
                 borderRadius: 16,
                 boxShadow: 'var(--shadow-lg)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                cursor: 'pointer'
+                transition: 'transform 0.2s, box-shadow 0.2s'
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.15)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = 'translateY(0)'
@@ -434,26 +413,8 @@ export default function Courses() {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>{course.code}</div>
-                    <span style={{
-                      padding: '3px 8px',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      borderRadius: 6,
-                      background: course.status === 'completed' 
-                        ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                        : course.status === 'archived' 
-                        ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
-                        : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                      color: 'white',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      {course.status === 'completed' ? '✓ Completed' : course.status === 'archived' ? 'Archived' : 'In Progress'}
-                    </span>
-                  </div>
+                <div>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 4 }}>{course.code}</div>
                   <h3 style={{ margin: '0 0 8px 0', fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>
                     {course.name}
                   </h3>
@@ -462,64 +423,21 @@ export default function Courses() {
                   </div>
                 </div>
                 {isInstructor && (
-                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={() => {
-                          setSelectedManagingCourse(course)
-                          setShowEnrollModal(true)
-                        }}
-                        style={{
-                          padding: '6px 12px',
-                          fontSize: 13,
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >
-                        Manage
-                      </button>
-                      <button
-                        onClick={() => handleDelete(course._id)}
-                        style={{
-                          padding: '6px 12px',
-                          fontSize: 13,
-                          background: 'var(--error-light)',
-                          color: 'var(--error)',
-                          border: '1px solid var(--error)',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleToggleStatus(course._id, course.status)
-                      }}
-                      style={{
-                        padding: '6px 12px',
-                        fontSize: 13,
-                        background: course.status === 'completed' 
-                          ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-                          : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 6,
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {course.status === 'completed' ? '↺ Reopen' : '✓ Complete'}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDelete(course._id)}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      background: '#fee',
+                      color: '#c33',
+                      border: '1px solid #fcc',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600
+                    }}
+                  >
+                    Delete
+                  </button>
                 )}
               </div>
               {course.description && (
@@ -561,7 +479,7 @@ export default function Courses() {
             overflow: 'auto'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: 'var(--text)' }}>Manage Students - {selectedManagingCourse.name}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Manage Students - {selectedManagingCourse.name}</h2>
               <button
                 onClick={() => setShowEnrollModal(false)}
                 style={{
@@ -578,7 +496,7 @@ export default function Courses() {
 
             {/* My Enrolled Students */}
             <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: 'var(--text)' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
                 Your Students ({getMyEnrolledStudents().length})
               </h3>
               {getMyEnrolledStudents().length > 0 ? (
@@ -594,7 +512,7 @@ export default function Courses() {
                       alignItems: 'center'
                     }}>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)' }}>{enrollment.student?.name}</div>
+                        <div style={{ fontWeight: 600, fontSize: 14 }}>{enrollment.student?.name}</div>
                         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{enrollment.student?.email}</div>
                         {enrollment.student?.studentId && (
                           <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>ID: {enrollment.student?.studentId}</div>
@@ -605,9 +523,9 @@ export default function Courses() {
                         style={{
                           padding: '6px 12px',
                           fontSize: 13,
-                          background: 'var(--error-light)',
-                          color: 'var(--error)',
-                          border: '1px solid var(--error)',
+                          background: '#fee',
+                          color: '#c33',
+                          border: '1px solid #fcc',
                           borderRadius: 6,
                           cursor: 'pointer',
                           fontWeight: 600
@@ -625,7 +543,7 @@ export default function Courses() {
 
             {/* Available Students */}
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: 'var(--text)' }}>Available Students</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Available Students</h3>
               {getAvailableStudents().length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {getAvailableStudents().map(student => (
@@ -639,7 +557,7 @@ export default function Courses() {
                       alignItems: 'center'
                     }}>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)' }}>{student.name}</div>
+                        <div style={{ fontWeight: 600, fontSize: 14 }}>{student.name}</div>
                         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{student.email}</div>
                         {student.studentId && (
                           <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>ID: {student.studentId}</div>
@@ -650,7 +568,7 @@ export default function Courses() {
                         style={{
                           padding: '6px 12px',
                           fontSize: 13,
-                          background: 'var(--primary)',
+                          background: '#667eea',
                           color: 'white',
                           border: 'none',
                           borderRadius: 6,
@@ -678,7 +596,7 @@ export default function Courses() {
           top: 24,
           right: 24,
           padding: '16px 24px',
-          background: notification.type === 'success' ? 'var(--success)' : 'var(--error)',
+          background: notification.type === 'success' ? '#10b981' : '#ef4444',
           color: 'white',
           borderRadius: 12,
           boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
@@ -687,8 +605,7 @@ export default function Courses() {
           display: 'flex',
           alignItems: 'center',
           gap: 12,
-          zIndex: 2000,
-          animation: 'slideIn 0.3s ease-out'
+          zIndex: 2000
         }}>
           <span style={{ fontSize: 18 }}>
             {notification.type === 'success' ? '✓' : '!'}
@@ -696,19 +613,6 @@ export default function Courses() {
           {notification.message}
         </div>
       )}
-
-      <style>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(400px);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   )
 }
