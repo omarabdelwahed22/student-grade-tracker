@@ -56,6 +56,16 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
