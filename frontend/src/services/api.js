@@ -28,7 +28,7 @@ export async function get(path) {
     if (ct.includes('application/json')) {
       err = await res.json().catch(()=>({ message: res.statusText }));
     } else {
-      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText };
+      err = { message: res.status === 502 || res.status === 500 ? `Backend unreachable at ${API_BASE}. Please check the API configuration.` : res.statusText };
     }
     throw new Error(err.message || 'Network error');
   }
@@ -47,7 +47,7 @@ export async function post(path, body) {
         err = { message: res.statusText };
       }
     } else {
-      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText };
+      err = { message: res.status === 502 || res.status === 500 ? `Backend unreachable at ${API_BASE}. Please check the API configuration.` : res.statusText };
     }
     throw new Error(err.message || err.error || 'Network error');
   }
@@ -62,7 +62,7 @@ export async function put(path, body) {
     if (ct.includes('application/json')) {
       err = await res.json().catch(()=>({ message: res.statusText }));
     } else {
-      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText };
+      err = { message: res.status === 502 || res.status === 500 ? `Backend unreachable at ${API_BASE}. Please check the API configuration.` : res.statusText };
     }
     throw new Error(err.message || 'Network error');
   }
@@ -77,7 +77,7 @@ export async function del(path) {
     if (ct.includes('application/json')) {
       err = await res.json().catch(()=>({ message: res.statusText }));
     } else {
-      err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText };
+      err = { message: res.status === 502 || res.status === 500 ? `Backend unreachable at ${API_BASE}. Please check the API configuration.` : res.statusText };
     }
     throw new Error(err.message || 'Network error');
   }
