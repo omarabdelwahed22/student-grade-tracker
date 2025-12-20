@@ -265,5 +265,3 @@ Note: commit listing below is a selected view pulled from the repository and may
 **Document Prepared By:** Scrum Team
 **Date:** December 19, 2025
 **Document Version:** 1.0
-
-**Note:** Commit list and repository-derived details above were gathered from repository queries and may be incomplete. To view the complete commit history and PR list, visit: https://github.com/omarabdelwahed22/student-grade-tracker/commits
