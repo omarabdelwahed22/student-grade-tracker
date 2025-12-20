@@ -55,4 +55,4 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           cd backend
-          railway up
+          railway up --project 2e03eda0-ee8b-48cb-b2f1-920728bc2062
