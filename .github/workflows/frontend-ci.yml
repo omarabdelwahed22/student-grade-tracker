@@ -56,17 +56,23 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
-      - name: Verify build artifacts
-        run: |
-          ls -la frontend/dist || echo "dist folder not found"
-          echo "File count: $(find frontend/dist -type f | wc -l)"
-
       - name: Deploy to Netlify
-        working-directory: frontend
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: netlify deploy --dir=dist --prod
+        run: |
+          cd frontend
+          netlify deploy --dir=dist --prod --auth "$NETLIFY_AUTH_TOKEN" --site "$NETLIFY_SITE_ID"
