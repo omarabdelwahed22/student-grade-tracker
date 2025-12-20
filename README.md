@@ -1,150 +1,102 @@
 # Student Grade Tracker
 
-This repository contains a starter full-stack Student Grade Tracker.
+![CI Status](https://github.com/omarabdelwahed22/student-grade-tracker/workflows/CI/badge.svg)
 
-Frontend:
-- React (Vite-ready structure)
-- Folders: `components`, `pages`, `services`
+## Project Summary
+Student Grade Tracker is a full‑stack web application that allows instructors to manage courses and assign grades, and enables students to view their grades and GPA through role‑based access. The application provides grade entry, per‑course averages, dashboard statistics, and tools to inspect student performance.
 
-Backend:
-- Node.js + Express
-- Folders: `routes`, `controllers`, `models`, `config`
-- Health endpoint: `GET /api/health`
+## Key Features
+- Secure user registration and login with role selection (student / instructor)
+- Role-based access control (instructor vs. student views)
+- Instructor grade management (add, edit, bulk upload)
+- Student dashboard showing grades, per-course averages and GPA calculation
+- Dashboard statistics and course analytics
+- RESTful backend API and React single-page frontend
+- CI checks (linting and tests) and build configuration for deployment
 
-How to run (backend only):
+## Tech Stack
+- Backend: Node.js + Express
+- Database: MongoDB (Mongoose)
+- Frontend: React
+- Tooling: ESLint, Jest, GitHub Actions
+- Project layout: backend/, frontend/, public/, src/
 
-1. Install dependencies for backend:
+## Quickstart
+Prerequisites: Node.js (14+) and npm (or yarn). MongoDB instance (local or hosted).
 
-```powershell
-cd backend; npm install
-```
+1. Clone the repository
+bash
+git clone https://github.com/omarabdelwahed22/student-grade-tracker.git
+cd student-grade-tracker
 
-2. Start backend:
 
-```powershell
+2. Install top-level (optional) and backend/frontend dependencies
+bash
+# Optional top-level install if workspaces/scripts exist
+npm install
+
+# Backend
+cd backend
+npm install
+
+# Frontend (in a separate terminal)
+cd ../frontend
+npm install
+
+
+3. Backend setup and run
+bash
+cd backend
+# Create a .env file with MONGO_URI and JWT_SECRET (example: .env example provided)
+npm run dev   # or `node server.js` depending on scripts
+
+By default the backend listens on the port configured in backend/server.js or PORT environment variable.
+
+4. Frontend setup and run
+bash
+cd frontend
 npm start
-```
 
-Frontend setup (optional):
+The frontend runs on the port configured by the React app (commonly http://localhost:3000).
 
-```powershell
-cd frontend; npm install; npm run dev
-```
-# Student Grade Tracker
+## Environment & Configuration
+Create a .env file in backend/ with variables similar to:
 
-A full-stack web application for tracking student grades and performance. Built with React, Node.js/Express, and designed for a software engineering course.
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/student-grade-tracker
+JWT_SECRET=your_jwt_secret_here
 
-## Project Structure
+Adjust values for production or hosted DB instances.
 
-```
-├── backend/
-│   ├── src/
-│   │   ├── controllers/     # Route handlers
-│   │   ├── routes/          # Route definitions
-│   │   ├── config/          # Configuration files
-│   │   └── server.js        # Express app entry point
-│   ├── package.json
-│   └── .env.example
-└── frontend/
-    ├── src/
-    │   ├── components/      # React components
-    │   ├── pages/           # Page components
-    │   ├── services/        # API service functions
-    │   ├── App.jsx
-    │   ├── main.jsx
-    │   └── styles.css
-    ├── public/
-    │   └── index.html
-    ├── package.json
-    └── vite.config.js
-```
+## Project Structure (high level)
+- backend/ — Express server, route definitions in routes/, data models in models/, tests in tests/.
+- frontend/ — React app, pages, components and styles.
+- public/ — static assets and index.html for the frontend.
+- src/ — shared or root-level frontend source (if applicable).
 
-## Getting Started
+## Tests
+A CI pipeline runs linting and tests on every push/PR (see .github/workflows).
 
-### Backend Setup
+### Running tests locally
+Backend tests:
+bash
+cd backend
+npm test
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+Frontend tests:
+bash
+cd frontend
+npm test
 
-3. Create a `.env` file (copy from `.env.example`):
-   ```bash
-   cp .env.example .env
-   ```
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+## CI / Deployment
+- GitHub Actions run lint and tests on push/PR.
+- Netlify (or other SPA host) configuration is supported via build scripts and redirect rules (see frontend/netlify.toml or project build config).
+- Ensure CI passes on main before deploying to staging/production.
 
-   The API will run on `http://localhost:4000`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-   The app will run on `http://localhost:5173`
-
-## API Endpoints
-
-- **GET /api/health** - Health check endpoint
-  ```json
-  {
-    "status": "healthy",
-    "timestamp": "2024-12-17T00:00:00.000Z",
-    "uptime": 123.45
-  }
-  ```
-
-## Features (Roadmap)
-
-- [ ] Authentication (Login/Register)
-- [ ] Student Management (CRUD)
-- [ ] Assignment Management
-- [ ] Grade Tracking
-- [ ] Reports and Analytics
-- [ ] User Roles (Admin, Teacher, Student)
-
-## Development Notes
-
-- No authentication or database configured yet
-- Uses ES6 modules (import/export)
-- Backend uses Express with CORS enabled
-- Frontend uses React with Vite for fast development
-
-## Branching Strategy
-
-For the course project, each feature should be developed in a separate branch:
-
-```bash
-# Create a feature branch
-git checkout -b feature/<feature-name>
-
-# Example features
-git checkout -b feature/authentication
-git checkout -b feature/students-crud
-git checkout -b feature/grade-tracking
-```
-
-Create pull requests into `main` for review before merging.
-
-# student-grade-tracker
+## Contributing
+- Fork the repo and create a feature branch.
+- Open an issue to discuss larger changes before implementation.
+- Create PRs against main with descriptive titles and linked issues.
+- Add tests for new functionality and follow existing code style.
