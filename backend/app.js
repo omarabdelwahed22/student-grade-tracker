@@ -61,14 +61,22 @@ app.use((err, req, res, next) => {
 app.use(errorHandler);
 
 // Connect to DB (async) and start server
-const serverPromise = db.connect().then(() => {
-  return new Promise((resolve) => {
-    const server = app.listen(PORT, () => {
-      console.log(`Backend listening on port ${PORT}`);
-      resolve(server);
+async function startServer() {
+  try {
+    await db.connect();
+    return new Promise((resolve) => {
+      const server = app.listen(PORT, () => {
+        console.log(`Backend listening on port ${PORT}`);
+        resolve(server);
+      });
     });
-  });
-});
+  } catch (err) {
+    console.error('Failed to start server:', err.message);
+    process.exit(1);
+  }
+}
+
+const serverPromise = startServer();
 
 // Graceful shutdown
 async function shutdown(signal) {
