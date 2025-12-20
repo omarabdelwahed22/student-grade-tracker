@@ -42,7 +42,12 @@ export async function post(path, body) {
     } else {
       err = { message: res.status === 502 || res.status === 500 ? 'Backend unreachable. Please ensure the server is running on port 4000.' : res.statusText };
     }
-    throw new Error(err.message || err.error || 'Network error');
+    const message = err.message
+      || err.error
+      || (Array.isArray(err.errors) && err.errors[0]?.msg)
+      || (typeof err === 'string' ? err : null)
+      || 'Network error';
+    throw new Error(message);
   }
   return res.json();
 }
