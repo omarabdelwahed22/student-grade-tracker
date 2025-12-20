@@ -1,4 +1,13 @@
-const API_BASE = '/api';
+// Get API base URL from environment variable, fallback to /api for development
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
+
+// Warn if API URL is not configured in production
+if (!import.meta.env.VITE_API_URL && import.meta.env.PROD) {
+  console.warn(
+    '⚠️ VITE_API_URL is not configured. Frontend will attempt same-origin API calls to /api/*. ' +
+    'For production deployments, set VITE_API_URL to your backend API URL (e.g., https://your-backend.example.com/api)'
+  );
+}
 
 function authHeaders() {
   const token = localStorage.getItem('token');

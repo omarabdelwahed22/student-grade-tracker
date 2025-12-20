@@ -124,6 +124,37 @@ A full-stack web application for tracking student grades and performance. Built 
 - [ ] Reports and Analytics
 - [ ] User Roles (Admin, Teacher, Student)
 
+## Deployment
+
+### Deploying to Netlify
+
+When deploying the frontend to Netlify, you need to configure the backend API URL:
+
+1. **Set Environment Variable in Netlify:**
+   - Go to Site settings → Build & deploy → Environment variables
+   - Add a new variable:
+     - Key: `VITE_API_URL`
+     - Value: Your backend API URL (e.g., `https://your-backend.example.com/api`)
+
+2. **Build Settings:**
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+   - Base directory: `frontend`
+
+3. **Important Notes:**
+   - The frontend expects the backend API to be accessible at the URL specified in `VITE_API_URL`
+   - If you see 404 errors on `/api/*` paths, ensure `VITE_API_URL` is set correctly
+   - For local development, the Vite proxy (configured in `vite.config.js`) forwards requests to `http://localhost:4000`
+   - In production, direct API calls are made to the configured `VITE_API_URL`
+
+### Troubleshooting
+
+**Problem:** Getting 404 errors on `/api/auth/login` or other `/api/*` endpoints
+
+**Solution:** This happens when `VITE_API_URL` is not configured. The frontend is making same-origin requests to `/api/*` which don't exist on the Netlify static site. You must:
+- Set the `VITE_API_URL` environment variable in Netlify to point to your deployed backend
+- OR deploy the backend as Netlify Functions (requires code changes)
+
 ## Development Notes
 
 - No authentication or database configured yet
