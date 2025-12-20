@@ -1,5 +1,9 @@
-// Prefer deployed API base URL from env; fall back to relative /api for local dev
-const apiRoot = import.meta?.env?.VITE_API_URL || '';
+// Prefer deployed API base URL from env; when missing on Netlify, default to Railway prod URL; fall back to /api for local dev
+const netlifyHost = typeof window !== 'undefined' ? window.location.hostname : '';
+const inferredProd = netlifyHost.includes('netlify.app')
+  ? 'https://student-grade-tracker-production.up.railway.app'
+  : '';
+const apiRoot = import.meta?.env?.VITE_API_URL || inferredProd;
 const API_BASE = apiRoot ? `${apiRoot.replace(/\/$/, '')}/api` : '/api';
 
 function authHeaders() {
