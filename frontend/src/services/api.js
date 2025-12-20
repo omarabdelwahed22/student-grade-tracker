@@ -1,4 +1,6 @@
-const API_BASE = '/api';
+// Prefer deployed API base URL from env; fall back to relative /api for local dev
+const apiRoot = import.meta?.env?.VITE_API_URL || '';
+const API_BASE = apiRoot ? `${apiRoot.replace(/\/$/, '')}/api` : '/api';
 
 function authHeaders() {
   const token = localStorage.getItem('token');
